@@ -804,7 +804,7 @@ export default function Board4P({ gameState, myColor, onMoveToken, onOpenThrowMe
 
           const player = players[tok.color];
           const options = (isMyTurn && tok.color === activeColor && !gameState.canRoll)
-            ? getValidRollOptionsForToken(player, tok.tIdx, gameState.dicePool, 56, killRequired)
+            ? getValidRollOptionsForToken(player, tok.tIdx, gameState.dicePool, 56, killRequired, gameState, tok.color)
             : [];
           let isMoveable = options.length > 0;
           if (gameState.appealState && gameState.appealState.inDemo) {
