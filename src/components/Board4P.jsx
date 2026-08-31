@@ -1028,37 +1028,39 @@ export default function Board4P({
 
         </g>
 
-        {/* Contextual Roll Selection Popover near clicked token with Smart Clamping & Edge Flip */}
+        {/* Contextual Roll Selection Popover near clicked token with 4-Way Smart Auto-Adjustment */}
         {activePopup && (() => {
-          const btnWidth = 40;
-          const pad = 14;
+          const btnWidth = 42;
+          const pad = 16;
           const popupWidth = activePopup.options.length * btnWidth + pad;
           const halfWidth = popupWidth / 2;
+          const margin = 16;
           
-          // Smart X Clamping: prevents popover from ever overflowing left (x < 10) or right (x > 590)
-          const clampedX = Math.max(10 + halfWidth, Math.min(590 - halfWidth, activePopup.coords.x));
+          // Smart X Clamping: guarantees popover never overflows left edge or right edge
+          const clampedX = Math.max(margin + halfWidth, Math.min(600 - margin - halfWidth, activePopup.coords.x));
           
-          // Smart Y Placement: if near top edge (< 55), flips below token; if near bottom edge (> 545), stays above
-          const isNearTop = activePopup.coords.y < 55;
-          const isNearBottom = activePopup.coords.y > 545;
+          // Smart Y Placement: if near top edge (< 80), flips below token; if near bottom edge (> 520), flips above
+          const isNearTop = activePopup.coords.y < 80;
+          const isNearBottom = activePopup.coords.y > 520;
           let popY = isNearTop 
-            ? activePopup.coords.y + 38 
+            ? activePopup.coords.y + 42 
             : isNearBottom 
-              ? activePopup.coords.y - 38 
-              : activePopup.coords.y - 36;
-          popY = Math.max(24, Math.min(576, popY));
+              ? activePopup.coords.y - 42 
+              : activePopup.coords.y - 40;
+          
+          const clampedY = Math.max(margin + 20, Math.min(600 - margin - 20, popY));
 
           return (
             <g
-              transform={`translate(${clampedX}, ${popY})`}
-              style={{ filter: 'drop-shadow(0 10px 25px rgba(0,0,0,0.85))' }}
+              transform={`translate(${clampedX}, ${clampedY})`}
+              style={{ filter: 'drop-shadow(0 12px 28px rgba(0,0,0,0.9))' }}
             >
               <rect
                 x={-halfWidth}
-                y="-20"
+                y="-21"
                 width={popupWidth}
-                height="40"
-                rx="20"
+                height="42"
+                rx="21"
                 fill="#0F172A"
                 stroke="#6366F1"
                 strokeWidth="2.5"
@@ -1076,9 +1078,9 @@ export default function Board4P({
                     }}
                     style={{ cursor: 'pointer' }}
                   >
-                    <circle cx={btnX} cy="0" r="18" fill="transparent" />
-                    <circle cx={btnX} cy="0" r="15" fill={opt.val === 6 ? '#22C55E' : '#6366F1'} stroke="#FFFFFF" strokeWidth="1.5" />
-                    <text x={btnX} y="4.5" fill="#FFFFFF" fontSize="13" fontWeight="900" textAnchor="middle">{opt.val}</text>
+                    <circle cx={btnX} cy="0" r="19" fill="transparent" />
+                    <circle cx={btnX} cy="0" r="16" fill={opt.val === 6 ? '#22C55E' : '#6366F1'} stroke="#FFFFFF" strokeWidth="1.5" />
+                    <text x={btnX} y="5" fill="#FFFFFF" fontSize="14" fontWeight="900" textAnchor="middle">{opt.val}</text>
                   </g>
                 );
               })}

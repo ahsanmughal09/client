@@ -853,42 +853,65 @@ export default function Board6P({ gameState, myColor, onMoveToken, onOpenThrowMe
 
         </g>
 
-        {/* Contextual Roll Selection Popover near clicked token */}
-        {activePopup && (
-          <g 
-            transform={`translate(${activePopup.coords.x}, ${Math.max(35, activePopup.coords.y - 38)})`}
-          >
-            <rect 
-              x={- (activePopup.options.length * 38 + 12) / 2} 
-              y="-18" 
-              width={activePopup.options.length * 38 + 12} 
-              height="36" 
-              rx="18" 
-              fill="#0F172A" 
-              stroke="#6366F1" 
-              strokeWidth="2" 
-              filter="drop-shadow(0 8px 16px rgba(0,0,0,0.7))"
-            />
-            {activePopup.options.map((opt, idx) => {
-              const btnX = - (activePopup.options.length * 38) / 2 + idx * 38 + 19;
-              return (
-                <g 
-                  key={`opt-${idx}`} 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    sounds.playTokenStep();
-                    onMoveToken(activePopup.tokenIndex, opt.rollIndex);
-                    setActivePopup(null);
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <circle cx={btnX} cy="0" r="14" fill={opt.val === 6 ? '#22C55E' : '#6366F1'} stroke="#FFFFFF" strokeWidth="1.5" />
-                  <text x={btnX} y="4" fill="#FFFFFF" fontSize="12" fontWeight="bold" textAnchor="middle">{opt.val}</text>
-                </g>
-              );
-            })}
-          </g>
-        )}
+        {/* Contextual Roll Selection Popover near clicked token with 4-Way Smart Auto-Adjustment */}
+        {activePopup && (() => {
+          const btnWidth = 44;
+          const pad = 18;
+          const popupWidth = activePopup.options.length * btnWidth + pad;
+          const halfWidth = popupWidth / 2;
+          const margin = 20;
+          
+          // Smart X Clamping: guarantees popover never overflows left edge or right edge
+          const clampedX = Math.max(margin + halfWidth, Math.min(800 - margin - halfWidth, activePopup.coords.x));
+          
+          // Smart Y Placement: if near top edge (< 100), flips below token; if near bottom edge (> 700), flips above
+          const isNearTop = activePopup.coords.y < 100;
+          const isNearBottom = activePopup.coords.y > 700;
+          let popY = isNearTop 
+            ? activePopup.coords.y + 44 
+            : isNearBottom 
+              ? activePopup.coords.y - 44 
+              : activePopup.coords.y - 42;
+          
+          const clampedY = Math.max(margin + 22, Math.min(800 - margin - 22, popY));
+
+          return (
+            <g
+              transform={`translate(${clampedX}, ${clampedY})`}
+              style={{ filter: 'drop-shadow(0 12px 28px rgba(0,0,0,0.9))' }}
+            >
+              <rect
+                x={-halfWidth}
+                y="-22"
+                width={popupWidth}
+                height="44"
+                rx="22"
+                fill="#0F172A"
+                stroke="#6366F1"
+                strokeWidth="2.5"
+              />
+              {activePopup.options.map((opt, idx) => {
+                const btnX = -halfWidth + pad / 2 + idx * btnWidth + btnWidth / 2;
+                return (
+                  <g
+                    key={`opt-${idx}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      sounds.playTokenStep();
+                      onMoveToken(activePopup.tokenIndex, opt.rollIndex);
+                      setActivePopup(null);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <circle cx={btnX} cy="0" r="20" fill="transparent" />
+                    <circle cx={btnX} cy="0" r="17" fill={opt.val === 6 ? '#22C55E' : '#6366F1'} stroke="#FFFFFF" strokeWidth="1.5" />
+                    <text x={btnX} y="5.5" fill="#FFFFFF" fontSize="14" fontWeight="900" textAnchor="middle">{opt.val}</text>
+                  </g>
+                );
+              })}
+            </g>
+          );
+        })()}
 
       </svg>
     </div>
