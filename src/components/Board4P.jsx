@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { sounds } from '../utils/audio';
+import { getRotationAngle4P, rotatePoint } from '../utils/orientation';
 
 // 52 step perimeter path (col, row) on 15x15 grid (cell size = 40px)
 const MAIN_TRACK_4P = [
@@ -587,6 +588,8 @@ export default function Board4P({
   const { players, activeColor } = gameState;
   const isMyTurn = (activeColor === myColor);
   const killRequired = !!gameState.customRules?.killRequiredToEnterHome;
+  const rotationAngle = getRotationAngle4P(myColor);
+
   const handleTokenClick = (color, tokenIndex, tokCx, tokCy) => {
     let targetColor = activeColor;
     let isClickable = (isMyTurn && color === activeColor && (gameState.dicePool?.length > 0 || !gameState.canRoll));
@@ -615,9 +618,10 @@ export default function Board4P({
     } else {
       // Open contextual menu near token if multiple roll choices exist
       sounds.playClick();
+      const popupPos = rotatePoint(tokCx, tokCy, 300, 300, rotationAngle);
       setActivePopup({
         tokenIndex,
-        coords: { x: tokCx, y: tokCy },
+        coords: popupPos,
         options
       });
     }
@@ -729,6 +733,9 @@ export default function Board4P({
           </radialGradient>
         </defs>
 
+        {/* Main Rotated Board Presentation Group */}
+        <g transform={`rotate(${rotationAngle}, 300, 300)`}>
+
         {/* 4 Corner Yards */}
         <rect x="0" y="0" width="240" height="240" fill="#FF4757" opacity="0.85" rx="12" />
         <rect x="20" y="20" width="200" height="200" fill="#0F172A" rx="16" />
@@ -748,7 +755,7 @@ export default function Board4P({
         <circle cx="188" cy="52" r="22" fill="#0F172A" stroke="#FF4757" strokeWidth="2.5" />
         <circle cx="52" cy="188" r="22" fill="#0F172A" stroke="#FF4757" strokeWidth="2.5" />
         <circle cx="188" cy="188" r="22" fill="#0F172A" stroke="#FF4757" strokeWidth="2.5" />
-        <foreignObject x="55" y="75" width="130" height="76">
+        <foreignObject x="55" y="75" width="130" height="76" transform={`rotate(${-rotationAngle}, 120, 113)`}>
           <div style={{
             width: '100%',
             height: '100%',
@@ -787,7 +794,7 @@ export default function Board4P({
         <circle cx="548" cy="52" r="22" fill="#0F172A" stroke="#2ED573" strokeWidth="2.5" />
         <circle cx="412" cy="188" r="22" fill="#0F172A" stroke="#2ED573" strokeWidth="2.5" />
         <circle cx="548" cy="188" r="22" fill="#0F172A" stroke="#2ED573" strokeWidth="2.5" />
-        <foreignObject x="415" y="75" width="130" height="76">
+        <foreignObject x="415" y="75" width="130" height="76" transform={`rotate(${-rotationAngle}, 480, 113)`}>
           <div style={{
             width: '100%',
             height: '100%',
@@ -826,7 +833,7 @@ export default function Board4P({
         <circle cx="548" cy="412" r="22" fill="#0F172A" stroke="#FFA502" strokeWidth="2.5" />
         <circle cx="412" cy="548" r="22" fill="#0F172A" stroke="#FFA502" strokeWidth="2.5" />
         <circle cx="548" cy="548" r="22" fill="#0F172A" stroke="#FFA502" strokeWidth="2.5" />
-        <foreignObject x="415" y="435" width="130" height="76">
+        <foreignObject x="415" y="435" width="130" height="76" transform={`rotate(${-rotationAngle}, 480, 473)`}>
           <div style={{
             width: '100%',
             height: '100%',
@@ -865,7 +872,7 @@ export default function Board4P({
         <circle cx="188" cy="412" r="22" fill="#0F172A" stroke="#1E90FF" strokeWidth="2.5" />
         <circle cx="52" cy="548" r="22" fill="#0F172A" stroke="#1E90FF" strokeWidth="2.5" />
         <circle cx="188" cy="548" r="22" fill="#0F172A" stroke="#1E90FF" strokeWidth="2.5" />
-        <foreignObject x="55" y="435" width="130" height="76">
+        <foreignObject x="55" y="435" width="130" height="76" transform={`rotate(${-rotationAngle}, 120, 473)`}>
           <div style={{
             width: '100%',
             height: '100%',
@@ -940,7 +947,7 @@ export default function Board4P({
         <polygon points="360,360 240,360 300,300" fill="#1E90FF" />
         <polygon points="240,360 240,240 300,300" fill="#FF4757" />
         <circle cx="300" cy="300" r="28" fill="#0F172A" stroke="#F8FAFC" strokeWidth="3" />
-        <text x="300" y="306" fill="#F8FAFC" fontSize="16" fontWeight="bold" textAnchor="middle">LUDO</text>
+        <text x="300" y="306" fill="#F8FAFC" fontSize="16" fontWeight="bold" textAnchor="middle" transform={`rotate(${-rotationAngle}, 300, 300)`}>LUDO</text>
 
         {/* Tokens Rendering */}
         {allRenderTokens.map(tok => {
@@ -1018,6 +1025,8 @@ export default function Board4P({
             </g>
           );
         })}
+
+        </g>
 
         {/* Contextual Roll Selection Popover near clicked token with Smart Clamping & Edge Flip */}
         {activePopup && (() => {

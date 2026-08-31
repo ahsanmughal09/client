@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { socket } from './utils/socket';
 import { sounds } from './utils/audio';
+import { getCornerMap4P } from './utils/orientation';
 import HomeLobby from './components/HomeLobby';
 import GameLobby from './components/GameLobby';
 import Board4P from './components/Board4P';
@@ -534,55 +535,49 @@ export default function App() {
           
           {/* Top Bar / Header */}
           <div className="glass-panel game-top-bar">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 800, background: 'linear-gradient(135deg, #FFF, #818CF8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            {/* Left: Brand & Room Code */}
+            <div className="top-bar-left">
+              <h2 className="top-bar-title">
                 LUDO {gameState.mode}
               </h2>
-              <span style={{ fontSize: '0.75rem', color: '#CBD5E1', background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: '8px' }}>
-                Room: <strong style={{ color: '#818CF8' }}>{roomCode}</strong>
+              <span className="top-bar-room-badge">
+                <strong style={{ color: '#818CF8' }}>#{roomCode}</strong>
               </span>
               {gameState.customRules?.diceCount === 2 && (
-                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#2ED573', background: 'rgba(46, 213, 115, 0.15)', border: '1px solid rgba(46, 213, 115, 0.3)', padding: '1px 6px', borderRadius: '6px' }}>
+                <span className="top-bar-rule-chip desktop-only-rule">
                   🎲 2 Dice
                 </span>
               )}
               {gameState.customRules?.killRequiredToEnterHome && (
-                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#FFA502', background: 'rgba(255, 165, 2, 0.15)', border: '1px solid rgba(255, 165, 2, 0.3)', padding: '1px 6px', borderRadius: '6px' }}>
+                <span className="top-bar-rule-chip desktop-only-rule">
                   🎯 Kill Req
                 </span>
               )}
             </div>
 
-            {/* Central Prominent Active Turn Pill */}
+            {/* Center: Prominent Active Turn Pill */}
             {gameState.activeColor && (
               <div 
                 className={`top-bar-turn-badge ${isMyTurn ? 'my-turn-active-pill' : ''}`}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
                   background: isMyTurn 
                     ? 'linear-gradient(135deg, rgba(46, 213, 115, 0.28), rgba(15, 23, 42, 0.95))' 
                     : `linear-gradient(135deg, ${COLOR_HEX_CHIP[gameState.activeColor]}28, rgba(15, 23, 42, 0.95))`,
                   border: isMyTurn ? '1.5px solid #2ED573' : `1.5px solid ${COLOR_HEX_CHIP[gameState.activeColor] || '#6366F1'}`,
-                  padding: '3px 12px',
-                  borderRadius: '20px',
-                  boxShadow: isMyTurn ? '0 0 14px rgba(46, 213, 115, 0.6)' : `0 0 10px ${COLOR_HEX_CHIP[gameState.activeColor]}40`,
-                  transition: 'all 0.3s ease'
+                  boxShadow: isMyTurn ? '0 0 14px rgba(46, 213, 115, 0.6)' : `0 0 10px ${COLOR_HEX_CHIP[gameState.activeColor]}40`
                 }}
               >
-                <div style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  background: isMyTurn ? '#2ED573' : (COLOR_HEX_CHIP[gameState.activeColor] || '#6366F1'),
-                  boxShadow: `0 0 8px ${COLOR_HEX_CHIP[gameState.activeColor]}`,
-                  animation: 'pulse 1s infinite'
-                }} />
-                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#FFF' }}>
+                <div 
+                  className="turn-dot-indicator"
+                  style={{
+                    background: isMyTurn ? '#2ED573' : (COLOR_HEX_CHIP[gameState.activeColor] || '#6366F1'),
+                    boxShadow: `0 0 8px ${COLOR_HEX_CHIP[gameState.activeColor]}`
+                  }} 
+                />
+                <span className="turn-text-content">
                   {isMyTurn ? (
-                    <span style={{ color: '#2ED573', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      ⚡ YOUR TURN! <span style={{ fontSize: '0.7rem', color: '#A7F3D0', fontWeight: 700 }}>(Roll 🎲)</span>
+                    <span style={{ color: '#2ED573', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      ⚡ YOUR TURN
                     </span>
                   ) : (
                     <span style={{ color: '#CBD5E1' }}>
@@ -593,253 +588,150 @@ export default function App() {
                   )}
                 </span>
                 {timeLeft !== undefined && (
-                  <span style={{
-                    fontSize: '0.7rem',
-                    fontWeight: 900,
-                    color: timeLeft <= 5 ? '#FF4757' : (timeLeft <= 10 ? '#FFA502' : '#F1F5F9'),
-                    background: 'rgba(0,0,0,0.4)',
-                    padding: '1px 6px',
-                    borderRadius: '10px'
-                  }}>
-                    ⏱️ {timeLeft}s
+                  <span 
+                    className="turn-timer-badge"
+                    style={{
+                      color: timeLeft <= 5 ? '#FF4757' : (timeLeft <= 10 ? '#FFA502' : '#F1F5F9')
+                    }}
+                  >
+                    ⏱️{timeLeft}s
                   </span>
                 )}
               </div>
             )}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {/* Chat trigger in top bar with unread badge */}
+            {/* Right: Actions (Chat, My Color, Leave) */}
+            <div className="top-bar-right">
               <button
                 onClick={() => {
                   setIsMobileChatOpen(true);
                   setUnreadChatCount(0);
                 }}
-                className="top-bar-chat-btn"
-                style={{
-                  position: 'relative',
-                  background: 'rgba(30, 41, 59, 0.85)',
-                  border: '1px solid rgba(255, 255, 255, 0.25)',
-                  borderRadius: '8px',
-                  color: '#FFF',
-                  padding: '3px 8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.75rem',
-                  fontWeight: 700
-                }}
+                className="top-bar-action-btn chat-btn"
+                title="Open Room Chat"
               >
                 <MessageSquare size={13} color="#818CF8" />
-                <span>Chat</span>
+                <span className="btn-label-desktop">Chat</span>
                 {unreadChatCount > 0 && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '-4px',
-                    right: '-4px',
-                    background: '#EF4444',
-                    color: '#FFF',
-                    fontSize: '0.55rem',
-                    fontWeight: 900,
-                    padding: '0 4px',
-                    borderRadius: '8px',
-                    boxShadow: '0 0 6px rgba(239, 68, 68, 0.8)'
-                  }}>
+                  <span className="unread-badge">
                     {unreadChatCount}
                   </span>
                 )}
               </button>
 
-              <span style={{ fontWeight: 800, color: `#${myColor}`, background: 'rgba(30, 41, 59, 0.8)', border: `1px solid ${COLOR_HEX_CHIP[myColor] || 'rgba(255,255,255,0.2)'}`, padding: '2px 8px', borderRadius: '8px', textTransform: 'uppercase', fontSize: '0.75rem' }}>
-                {myColor}
-              </span>
-              <button 
-                onClick={handleLeaveRoom}
+              <span 
+                className="top-bar-mycolor-badge"
                 style={{
-                  background: 'rgba(239, 68, 68, 0.2)',
-                  border: '1px solid rgba(239, 68, 68, 0.5)',
-                  color: '#EF4444',
-                  fontWeight: 700,
-                  fontSize: '0.75rem',
-                  padding: '3px 8px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '3px',
-                  transition: 'all 0.2s ease'
+                  color: COLOR_HEX_CHIP[myColor] || '#FFF',
+                  borderColor: COLOR_HEX_CHIP[myColor] || 'rgba(255,255,255,0.2)'
                 }}
               >
-                🚪 Leave
+                {myColor}
+              </span>
+
+              <button 
+                onClick={handleLeaveRoom}
+                className="top-bar-action-btn leave-btn"
+                title="Leave Room"
+              >
+                <span>🚪</span>
+                <span className="btn-label-desktop">Leave</span>
               </button>
             </div>
           </div>
 
           {/* Main Game Layout with Outside-Connected Minimalist Corner Dice Pods */}
-          <div className="game-main-layout">
-            
-            {/* Desktop Left Side Column: Red Pod (Top) & Blue Pod (Bottom) + Chat */}
-            <div className="desktop-side-col left-side-col">
-              <MiniCornerPod
-                color="red"
-                player={gameState.players?.red}
-                teamName={gameState.teams?.red}
-                isMe={myColor === 'red'}
-                isActive={gameState.activeColor === 'red'}
-                isMyTurn={isMyTurn && gameState.activeColor === 'red'}
-                gameState={{ ...gameState, timeLeft }}
-                onRollDice={handleRollDice}
-                onSelectRoll={handleSelectRoll}
-                onOpenThrowMenu={handleOpenThrowMenu}
-                onSubmitAppeal={handleSubmitAppeal}
-              />
-
-              <div className="desktop-chat-wrapper">
-                <ChatPanel 
-                  roomCode={roomCode}
-                  socket={socket}
-                  chatMessages={chatMessages}
-                  myColor={myColor}
-                />
-              </div>
-
-              <MiniCornerPod
-                color="blue"
-                player={gameState.players?.blue}
-                teamName={gameState.teams?.blue}
-                isMe={myColor === 'blue'}
-                isActive={gameState.activeColor === 'blue'}
-                isMyTurn={isMyTurn && gameState.activeColor === 'blue'}
-                gameState={{ ...gameState, timeLeft }}
-                onRollDice={handleRollDice}
-                onSelectRoll={handleSelectRoll}
-                onOpenThrowMenu={handleOpenThrowMenu}
-                onSubmitAppeal={handleSubmitAppeal}
-              />
-            </div>
-
-            {/* Center Area: Connected Top/Bottom Pods on Mobile + Centered Board */}
-            <div className="center-game-wrapper">
-              
-              {/* Mobile Top Connected Pods: Red (Top-Left) & Green (Top-Right) */}
-              <div className="mobile-pods-row top-pods">
+          {(() => {
+            const cornerMap = getCornerMap4P(myColor);
+            const renderPodByColor = (color) => {
+              if (!color) return null;
+              return (
                 <MiniCornerPod
-                  color="red"
-                  player={gameState.players?.red}
-                  teamName={gameState.teams?.red}
-                  isMe={myColor === 'red'}
-                  isActive={gameState.activeColor === 'red'}
-                  isMyTurn={isMyTurn && gameState.activeColor === 'red'}
+                  color={color}
+                  player={gameState.players?.[color]}
+                  teamName={gameState.teams?.[color]}
+                  isMe={myColor === color}
+                  isActive={gameState.activeColor === color}
+                  isMyTurn={isMyTurn && gameState.activeColor === color}
                   gameState={{ ...gameState, timeLeft }}
                   onRollDice={handleRollDice}
                   onSelectRoll={handleSelectRoll}
                   onOpenThrowMenu={handleOpenThrowMenu}
                   onSubmitAppeal={handleSubmitAppeal}
                 />
-                <MiniCornerPod
-                  color="green"
-                  player={gameState.players?.green}
-                  teamName={gameState.teams?.green}
-                  isMe={myColor === 'green'}
-                  isActive={gameState.activeColor === 'green'}
-                  isMyTurn={isMyTurn && gameState.activeColor === 'green'}
-                  gameState={{ ...gameState, timeLeft }}
-                  onRollDice={handleRollDice}
-                  onSelectRoll={handleSelectRoll}
-                  onOpenThrowMenu={handleOpenThrowMenu}
-                  onSubmitAppeal={handleSubmitAppeal}
-                />
+              );
+            };
+
+            return (
+              <div className="game-main-layout">
+                {/* Desktop Left Side Column: Top-Left Pod & Bottom-Left Pod (myColor) + Chat */}
+                <div className="desktop-side-col left-side-col">
+                  {renderPodByColor(cornerMap.TL)}
+
+                  <div className="desktop-chat-wrapper">
+                    <ChatPanel 
+                      roomCode={roomCode}
+                      socket={socket}
+                      chatMessages={chatMessages}
+                      myColor={myColor}
+                    />
+                  </div>
+
+                  {renderPodByColor(cornerMap.BL)}
+                </div>
+
+                {/* Center Area: Connected Top/Bottom Pods on Mobile + Centered Board */}
+                <div className="center-game-wrapper">
+                  
+                  {/* Mobile Top Connected Pods: Top-Left & Top-Right */}
+                  <div className="mobile-pods-row top-pods">
+                    {renderPodByColor(cornerMap.TL)}
+                    {renderPodByColor(cornerMap.TR)}
+                  </div>
+
+                  {/* Centered Clean Board */}
+                  <div className="center-board-col">
+                    {gameState.mode === '4P' ? (
+                      <Board4P 
+                        gameState={gameState} 
+                        myColor={myColor} 
+                        onMoveToken={handleMoveToken} 
+                        onOpenThrowMenu={handleOpenThrowMenu} 
+                        onActionComplete={handleBoardActionComplete} 
+                      />
+                    ) : (
+                      <Board6P 
+                        gameState={gameState} 
+                        myColor={myColor} 
+                        onMoveToken={handleMoveToken} 
+                        onOpenThrowMenu={handleOpenThrowMenu} 
+                        onActionComplete={handleBoardActionComplete} 
+                      />
+                    )}
+                  </div>
+
+                  {/* Mobile Bottom Connected Pods: Bottom-Left (myColor) & Bottom-Right */}
+                  <div className="mobile-pods-row bottom-pods">
+                    {renderPodByColor(cornerMap.BL)}
+                    {renderPodByColor(cornerMap.BR)}
+                  </div>
+
+                </div>
+
+                {/* Desktop Right Side Column: Top-Right Pod & Bottom-Right Pod */}
+                <div className="desktop-side-col right-side-col">
+                  {renderPodByColor(cornerMap.TR)}
+
+                  <div className="desktop-auxiliary-wrapper" style={{ flex: 1 }}>
+                    {/* Clean spacer / auxiliary area */}
+                  </div>
+
+                  {renderPodByColor(cornerMap.BR)}
+                </div>
+
               </div>
-
-              {/* Centered Clean Board */}
-              <div className="center-board-col">
-                {gameState.mode === '4P' ? (
-                  <Board4P 
-                    gameState={gameState} 
-                    myColor={myColor} 
-                    onMoveToken={handleMoveToken} 
-                    onOpenThrowMenu={handleOpenThrowMenu} 
-                    onActionComplete={handleBoardActionComplete} 
-                  />
-                ) : (
-                  <Board6P 
-                    gameState={gameState} 
-                    myColor={myColor} 
-                    onMoveToken={handleMoveToken} 
-                    onOpenThrowMenu={handleOpenThrowMenu} 
-                    onActionComplete={handleBoardActionComplete} 
-                  />
-                )}
-              </div>
-
-              {/* Mobile Bottom Connected Pods: Blue (Bottom-Left) & Yellow (Bottom-Right) */}
-              <div className="mobile-pods-row bottom-pods">
-                <MiniCornerPod
-                  color="blue"
-                  player={gameState.players?.blue}
-                  teamName={gameState.teams?.blue}
-                  isMe={myColor === 'blue'}
-                  isActive={gameState.activeColor === 'blue'}
-                  isMyTurn={isMyTurn && gameState.activeColor === 'blue'}
-                  gameState={{ ...gameState, timeLeft }}
-                  onRollDice={handleRollDice}
-                  onSelectRoll={handleSelectRoll}
-                  onOpenThrowMenu={handleOpenThrowMenu}
-                  onSubmitAppeal={handleSubmitAppeal}
-                />
-                <MiniCornerPod
-                  color="yellow"
-                  player={gameState.players?.yellow}
-                  teamName={gameState.teams?.yellow}
-                  isMe={myColor === 'yellow'}
-                  isActive={gameState.activeColor === 'yellow'}
-                  isMyTurn={isMyTurn && gameState.activeColor === 'yellow'}
-                  gameState={{ ...gameState, timeLeft }}
-                  onRollDice={handleRollDice}
-                  onSelectRoll={handleSelectRoll}
-                  onOpenThrowMenu={handleOpenThrowMenu}
-                  onSubmitAppeal={handleSubmitAppeal}
-                />
-              </div>
-
-            </div>
-
-            {/* Desktop Right Side Column: Green Pod (Top) & Yellow Pod (Bottom) */}
-            <div className="desktop-side-col right-side-col">
-              <MiniCornerPod
-                color="green"
-                player={gameState.players?.green}
-                teamName={gameState.teams?.green}
-                isMe={myColor === 'green'}
-                isActive={gameState.activeColor === 'green'}
-                isMyTurn={isMyTurn && gameState.activeColor === 'green'}
-                gameState={{ ...gameState, timeLeft }}
-                onRollDice={handleRollDice}
-                onSelectRoll={handleSelectRoll}
-                onOpenThrowMenu={handleOpenThrowMenu}
-                onSubmitAppeal={handleSubmitAppeal}
-              />
-
-              <div className="desktop-auxiliary-wrapper" style={{ flex: 1 }}>
-                {/* Clean spacer / auxiliary area */}
-              </div>
-
-              <MiniCornerPod
-                color="yellow"
-                player={gameState.players?.yellow}
-                teamName={gameState.teams?.yellow}
-                isMe={myColor === 'yellow'}
-                isActive={gameState.activeColor === 'yellow'}
-                isMyTurn={isMyTurn && gameState.activeColor === 'yellow'}
-                gameState={{ ...gameState, timeLeft }}
-                onRollDice={handleRollDice}
-                onSelectRoll={handleSelectRoll}
-                onOpenThrowMenu={handleOpenThrowMenu}
-                onSubmitAppeal={handleSubmitAppeal}
-              />
-            </div>
-
-          </div>
+            );
+          })()}
 
           {/* Mobile Chat Sliding Drawer Modal */}
           {isMobileChatOpen && (
