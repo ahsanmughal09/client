@@ -485,7 +485,7 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
   min-height: 0;
 }
 
-.board-4p-wrapper {
+.board-4p-wrapper, .board-6p-wrapper {
   width: 100%;
   height: 100%;
   max-width: min(100%, calc(100vh - 75px));
@@ -500,25 +500,26 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
 /* Mobile & Tablet Responsive Breakpoint */
 @media (max-width: 1024px) {
   .game-screen-container {
-    padding: 4px 6px;
-    gap: 4px;
+    padding: 2px 4px;
+    gap: 3px;
   }
 
   .game-top-bar {
-    padding: 4px 10px;
-    border-radius: 12px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
   }
 
   .game-main-layout {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     flex: 1;
     min-height: 0;
     width: 100%;
-    height: calc(100dvh - 50px);
-    gap: 0;
+    height: calc(100dvh - 42px);
+    gap: 3px;
   }
 
   .desktop-side-col {
@@ -532,8 +533,8 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
     align-items: center;
     height: 100%;
     width: 100%;
-    max-width: 520px;
-    gap: 4px;
+    max-width: min(540px, 100vw);
+    gap: 3px;
   }
 
   .mobile-pods-row {
@@ -541,62 +542,71 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
     grid-template-columns: 1fr 1fr;
     gap: 6px;
     width: 100%;
-    height: 56px;
-    min-height: 56px;
-    max-height: 56px;
+    height: 70px;
+    min-height: 70px;
+    max-height: 70px;
     flex-shrink: 0;
     box-sizing: border-box;
   }
 
   .mobile-pods-row .mini-corner-pod {
-    height: 56px;
-    min-height: 56px;
-    max-height: 56px;
+    height: 70px;
+    min-height: 70px;
+    max-height: 70px;
     padding: 4px 8px;
+    justify-content: space-between;
+    overflow: hidden;
   }
 
   .center-board-col {
     flex: 1;
     width: 100%;
     min-height: 0;
-    max-height: calc(100dvh - 170px);
+    max-height: calc(100dvh - 192px);
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 0;
+    margin: 0;
   }
 
-  .board-4p-wrapper {
-    max-width: min(98vw, calc(100dvh - 175px));
-    max-height: min(98vw, calc(100dvh - 175px));
+  .board-4p-wrapper, .board-6p-wrapper {
+    max-width: min(100%, calc(100dvh - 196px));
+    max-height: min(100%, calc(100dvh - 196px));
     border-radius: 14px;
   }
 }
 
 @media (max-width: 480px) {
+  .game-top-bar {
+    padding: 2px 6px;
+  }
+
   .game-top-bar h2 {
-    font-size: 0.9rem !important;
+    font-size: 0.85rem !important;
   }
 
   .mobile-pods-row {
-    height: 54px;
-    min-height: 54px;
-    max-height: 54px;
+    height: 68px;
+    min-height: 68px;
+    max-height: 68px;
     gap: 4px;
   }
 
   .mobile-pods-row .mini-corner-pod {
-    height: 54px;
-    min-height: 54px;
-    max-height: 54px;
+    height: 68px;
+    min-height: 68px;
+    max-height: 68px;
+    padding: 3px 6px;
   }
 
   .center-board-col {
-    max-height: calc(100dvh - 165px);
+    max-height: calc(100dvh - 186px);
   }
 
-  .board-4p-wrapper {
-    max-width: min(99vw, calc(100dvh - 168px));
-    max-height: min(99vw, calc(100dvh - 168px));
+  .board-4p-wrapper, .board-6p-wrapper {
+    max-width: min(100%, calc(100dvh - 188px));
+    max-height: min(100%, calc(100dvh - 188px));
   }
 }
 

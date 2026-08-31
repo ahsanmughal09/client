@@ -687,11 +687,12 @@ export default function Board6P({ gameState, myColor, onMoveToken, onOpenThrowMe
   return (
     <div 
       onClick={() => setActivePopup(null)}
+      className="board-6p-wrapper"
       style={{
         position: 'relative',
         width: '100%',
         height: '100%',
-        maxHeight: 'calc(100vh - 55px)',
+        maxHeight: '100%',
         aspectRatio: '1 / 1',
         display: 'flex',
         justifyContent: 'center',
@@ -704,7 +705,7 @@ export default function Board6P({ gameState, myColor, onMoveToken, onOpenThrowMe
         style={{ 
           width: '100%', 
           height: '100%', 
-          maxHeight: 'calc(100vh - 55px)', 
+          maxHeight: '100%', 
           borderRadius: '24px', 
           background: 'radial-gradient(circle at center, #1E293B 0%, #0F172A 100%)', 
           border: '2px solid rgba(99, 102, 241, 0.4)',
