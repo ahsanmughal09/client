@@ -755,7 +755,7 @@ export default function Board4P({
         <circle cx="188" cy="52" r="22" fill="#0F172A" stroke="#FF4757" strokeWidth="2.5" />
         <circle cx="52" cy="188" r="22" fill="#0F172A" stroke="#FF4757" strokeWidth="2.5" />
         <circle cx="188" cy="188" r="22" fill="#0F172A" stroke="#FF4757" strokeWidth="2.5" />
-        <foreignObject x="55" y="75" width="130" height="76" transform={`rotate(${-rotationAngle}, 120, 113)`}>
+        <foreignObject x="45" y="71" width="150" height="84" transform={`rotate(${-rotationAngle}, 120, 113)`}>
           <div style={{
             width: '100%',
             height: '100%',
@@ -763,25 +763,25 @@ export default function Board4P({
             flexDirection: 'column',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: 'rgba(15, 23, 42, 0.85)',
+            background: 'rgba(15, 23, 42, 0.9)',
             backdropFilter: 'blur(8px)',
             borderRadius: '12px',
-            border: activeColor === 'red' ? '2px solid #FF4757' : '1px solid rgba(255, 71, 87, 0.35)',
-            boxShadow: activeColor === 'red' ? '0 0 12px rgba(255, 71, 87, 0.6)' : '0 4px 10px rgba(0,0,0,0.5)',
-            padding: '5px 8px',
+            border: activeColor === 'red' ? '2.5px solid #FF4757' : '1px solid rgba(255, 71, 87, 0.4)',
+            boxShadow: activeColor === 'red' ? '0 0 16px rgba(255, 71, 87, 0.7)' : '0 4px 12px rgba(0,0,0,0.6)',
+            padding: '6px 9px',
             boxSizing: 'border-box',
             color: '#FFF',
             userSelect: 'none'
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-              <span style={{ fontSize: '10px', fontWeight: 900, color: '#FF4757', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+              <span style={{ fontSize: '13px', fontWeight: 900, color: '#FF4757', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
                 {players['red']?.name || 'RED'}
               </span>
-              <span style={{ fontSize: '7.5px', color: '#94A3B8', fontWeight: 600 }}>
+              <span style={{ fontSize: '9.5px', color: '#94A3B8', fontWeight: 700 }}>
                 {gameState?.teams?.['red'] || 'RED'}
               </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '8.5px', fontWeight: 800, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '3px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '11.5px', fontWeight: 900, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '4px' }}>
               <span style={{ color: '#EF4444' }} title="Kills">⚔️ {players['red']?.kills || 0}</span>
               <span style={{ color: '#10B981' }} title="Home Tokens">🏠 {players['red']?.tokens?.filter(s => s === 56).length || 0}/4</span>
               <span style={{ color: '#F59E0B' }} title="Appeals Left">⚖️ {players['red']?.appealsLeft ?? 3}</span>
@@ -794,7 +794,7 @@ export default function Board4P({
         <circle cx="548" cy="52" r="22" fill="#0F172A" stroke="#2ED573" strokeWidth="2.5" />
         <circle cx="412" cy="188" r="22" fill="#0F172A" stroke="#2ED573" strokeWidth="2.5" />
         <circle cx="548" cy="188" r="22" fill="#0F172A" stroke="#2ED573" strokeWidth="2.5" />
-        <foreignObject x="415" y="75" width="130" height="76" transform={`rotate(${-rotationAngle}, 480, 113)`}>
+        <foreignObject x="405" y="71" width="150" height="84" transform={`rotate(${-rotationAngle}, 480, 113)`}>
           <div style={{
             width: '100%',
             height: '100%',
@@ -802,25 +802,25 @@ export default function Board4P({
             flexDirection: 'column',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: 'rgba(15, 23, 42, 0.85)',
+            background: 'rgba(15, 23, 42, 0.9)',
             backdropFilter: 'blur(8px)',
             borderRadius: '12px',
-            border: activeColor === 'green' ? '2px solid #2ED573' : '1px solid rgba(46, 213, 115, 0.35)',
-            boxShadow: activeColor === 'green' ? '0 0 12px rgba(46, 213, 115, 0.6)' : '0 4px 10px rgba(0,0,0,0.5)',
-            padding: '5px 8px',
+            border: activeColor === 'green' ? '2.5px solid #2ED573' : '1px solid rgba(46, 213, 115, 0.4)',
+            boxShadow: activeColor === 'green' ? '0 0 16px rgba(46, 213, 115, 0.7)' : '0 4px 12px rgba(0,0,0,0.6)',
+            padding: '6px 9px',
             boxSizing: 'border-box',
             color: '#FFF',
             userSelect: 'none'
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-              <span style={{ fontSize: '10px', fontWeight: 900, color: '#2ED573', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+              <span style={{ fontSize: '13px', fontWeight: 900, color: '#2ED573', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
                 {players['green']?.name || 'GREEN'}
               </span>
-              <span style={{ fontSize: '7.5px', color: '#94A3B8', fontWeight: 600 }}>
+              <span style={{ fontSize: '9.5px', color: '#94A3B8', fontWeight: 700 }}>
                 {gameState?.teams?.['green'] || 'GREEN'}
               </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '8.5px', fontWeight: 800, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '3px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '11.5px', fontWeight: 900, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '4px' }}>
               <span style={{ color: '#EF4444' }} title="Kills">⚔️ {players['green']?.kills || 0}</span>
               <span style={{ color: '#10B981' }} title="Home Tokens">🏠 {players['green']?.tokens?.filter(s => s === 56).length || 0}/4</span>
               <span style={{ color: '#F59E0B' }} title="Appeals Left">⚖️ {players['green']?.appealsLeft ?? 3}</span>
@@ -833,7 +833,7 @@ export default function Board4P({
         <circle cx="548" cy="412" r="22" fill="#0F172A" stroke="#FFA502" strokeWidth="2.5" />
         <circle cx="412" cy="548" r="22" fill="#0F172A" stroke="#FFA502" strokeWidth="2.5" />
         <circle cx="548" cy="548" r="22" fill="#0F172A" stroke="#FFA502" strokeWidth="2.5" />
-        <foreignObject x="415" y="435" width="130" height="76" transform={`rotate(${-rotationAngle}, 480, 473)`}>
+        <foreignObject x="405" y="431" width="150" height="84" transform={`rotate(${-rotationAngle}, 480, 473)`}>
           <div style={{
             width: '100%',
             height: '100%',
@@ -841,25 +841,25 @@ export default function Board4P({
             flexDirection: 'column',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: 'rgba(15, 23, 42, 0.85)',
+            background: 'rgba(15, 23, 42, 0.9)',
             backdropFilter: 'blur(8px)',
             borderRadius: '12px',
-            border: activeColor === 'yellow' ? '2px solid #FFA502' : '1px solid rgba(255, 165, 2, 0.35)',
-            boxShadow: activeColor === 'yellow' ? '0 0 12px rgba(255, 165, 2, 0.6)' : '0 4px 10px rgba(0,0,0,0.5)',
-            padding: '5px 8px',
+            border: activeColor === 'yellow' ? '2.5px solid #FFA502' : '1px solid rgba(255, 165, 2, 0.4)',
+            boxShadow: activeColor === 'yellow' ? '0 0 16px rgba(255, 165, 2, 0.7)' : '0 4px 12px rgba(0,0,0,0.6)',
+            padding: '6px 9px',
             boxSizing: 'border-box',
             color: '#FFF',
             userSelect: 'none'
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-              <span style={{ fontSize: '10px', fontWeight: 900, color: '#FFA502', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+              <span style={{ fontSize: '13px', fontWeight: 900, color: '#FFA502', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
                 {players['yellow']?.name || 'YELLOW'}
               </span>
-              <span style={{ fontSize: '7.5px', color: '#94A3B8', fontWeight: 600 }}>
+              <span style={{ fontSize: '9.5px', color: '#94A3B8', fontWeight: 700 }}>
                 {gameState?.teams?.['yellow'] || 'YELLOW'}
               </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '8.5px', fontWeight: 800, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '3px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '11.5px', fontWeight: 900, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '4px' }}>
               <span style={{ color: '#EF4444' }} title="Kills">⚔️ {players['yellow']?.kills || 0}</span>
               <span style={{ color: '#10B981' }} title="Home Tokens">🏠 {players['yellow']?.tokens?.filter(s => s === 56).length || 0}/4</span>
               <span style={{ color: '#F59E0B' }} title="Appeals Left">⚖️ {players['yellow']?.appealsLeft ?? 3}</span>
@@ -872,7 +872,7 @@ export default function Board4P({
         <circle cx="188" cy="412" r="22" fill="#0F172A" stroke="#1E90FF" strokeWidth="2.5" />
         <circle cx="52" cy="548" r="22" fill="#0F172A" stroke="#1E90FF" strokeWidth="2.5" />
         <circle cx="188" cy="548" r="22" fill="#0F172A" stroke="#1E90FF" strokeWidth="2.5" />
-        <foreignObject x="55" y="435" width="130" height="76" transform={`rotate(${-rotationAngle}, 120, 473)`}>
+        <foreignObject x="45" y="431" width="150" height="84" transform={`rotate(${-rotationAngle}, 120, 473)`}>
           <div style={{
             width: '100%',
             height: '100%',
@@ -880,25 +880,25 @@ export default function Board4P({
             flexDirection: 'column',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: 'rgba(15, 23, 42, 0.85)',
+            background: 'rgba(15, 23, 42, 0.9)',
             backdropFilter: 'blur(8px)',
             borderRadius: '12px',
-            border: activeColor === 'blue' ? '2px solid #1E90FF' : '1px solid rgba(30, 144, 255, 0.35)',
-            boxShadow: activeColor === 'blue' ? '0 0 12px rgba(30, 144, 255, 0.6)' : '0 4px 10px rgba(0,0,0,0.5)',
-            padding: '5px 8px',
+            border: activeColor === 'blue' ? '2.5px solid #1E90FF' : '1px solid rgba(30, 144, 255, 0.4)',
+            boxShadow: activeColor === 'blue' ? '0 0 16px rgba(30, 144, 255, 0.7)' : '0 4px 12px rgba(0,0,0,0.6)',
+            padding: '6px 9px',
             boxSizing: 'border-box',
             color: '#FFF',
             userSelect: 'none'
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-              <span style={{ fontSize: '10px', fontWeight: 900, color: '#1E90FF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+              <span style={{ fontSize: '13px', fontWeight: 900, color: '#1E90FF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
                 {players['blue']?.name || 'BLUE'}
               </span>
-              <span style={{ fontSize: '7.5px', color: '#94A3B8', fontWeight: 600 }}>
+              <span style={{ fontSize: '9.5px', color: '#94A3B8', fontWeight: 700 }}>
                 {gameState?.teams?.['blue'] || 'BLUE'}
               </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '8.5px', fontWeight: 800, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '3px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '11.5px', fontWeight: 900, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '4px' }}>
               <span style={{ color: '#EF4444' }} title="Kills">⚔️ {players['blue']?.kills || 0}</span>
               <span style={{ color: '#10B981' }} title="Home Tokens">🏠 {players['blue']?.tokens?.filter(s => s === 56).length || 0}/4</span>
               <span style={{ color: '#F59E0B' }} title="Appeals Left">⚖️ {players['blue']?.appealsLeft ?? 3}</span>

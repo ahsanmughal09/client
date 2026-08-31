@@ -207,33 +207,32 @@ function YardPlayerCard6P({ color, player, isActive, isMe, teamName, finishStep 
       style={{
         background: isActive 
           ? 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98))' 
-          : player ? 'rgba(15, 23, 42, 0.85)' : 'rgba(15, 23, 42, 0.4)',
-        borderRadius: '10px',
-        border: isActive ? `2px solid ${COLOR_HEX_6P[color] || '#6366F1'}` : '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: isActive ? `0 0 14px ${COLOR_HEX_6P[color]}90` : '0 4px 10px rgba(0, 0, 0, 0.5)',
-        padding: '4px 6px',
+          : player ? 'rgba(15, 23, 42, 0.88)' : 'rgba(15, 23, 42, 0.4)',
+        borderRadius: '12px',
+        border: isActive ? `2.5px solid ${COLOR_HEX_6P[color] || '#6366F1'}` : '1px solid rgba(255, 255, 255, 0.25)',
+        boxShadow: isActive ? `0 0 16px ${COLOR_HEX_6P[color]}90` : '0 4px 12px rgba(0, 0, 0, 0.6)',
+        padding: '5px 7px',
         color: '#FFF',
         display: 'flex',
         flexDirection: 'column',
-        gap: '2px',
-        fontSize: '9px',
+        gap: '3px',
         userSelect: 'none'
       }}
     >
       {/* Top Row: Name & Active Turn Badge & Target Throw Button */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '3px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', minWidth: 0 }}>
           <div style={{
-            width: '6px',
-            height: '6px',
+            width: '7px',
+            height: '7px',
             borderRadius: '50%',
             background: player && player.connected ? '#2ED573' : '#64748B',
-            boxShadow: player && player.connected ? '0 0 5px #2ED573' : 'none',
+            boxShadow: player && player.connected ? '0 0 6px #2ED573' : 'none',
             flexShrink: 0
           }} />
           <span style={{ 
-            fontWeight: 800, 
-            fontSize: '10px',
+            fontWeight: 900, 
+            fontSize: '13px',
             whiteSpace: 'nowrap', 
             overflow: 'hidden', 
             textOverflow: 'ellipsis',
@@ -256,7 +255,7 @@ function YardPlayerCard6P({ color, player, isActive, isMe, teamName, finishStep 
                 border: '1px solid rgba(255, 255, 255, 0.35)',
                 borderRadius: '5px',
                 color: '#FFF',
-                fontSize: '10px',
+                fontSize: '11px',
                 padding: '1px 4px',
                 cursor: 'pointer',
                 display: 'flex',
@@ -271,9 +270,9 @@ function YardPlayerCard6P({ color, player, isActive, isMe, teamName, finishStep 
             <span style={{
               background: COLOR_HEX_6P[color],
               color: '#0F172A',
-              fontSize: '7px',
+              fontSize: '8.5px',
               fontWeight: 900,
-              padding: '1px 4px',
+              padding: '1px 5px',
               borderRadius: '4px',
               textTransform: 'uppercase',
               flexShrink: 0
@@ -285,20 +284,20 @@ function YardPlayerCard6P({ color, player, isActive, isMe, teamName, finishStep 
       </div>
 
       {/* Middle Row: Team Name & Winner Status */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '8px', color: '#94A3B8' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '9.5px', color: '#94A3B8', fontWeight: 700 }}>
         <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{teamName || color.toUpperCase()}</span>
-        {isWinner && <span style={{ color: '#F59E0B', fontWeight: 800 }}>🏆 WINNER</span>}
+        {isWinner && <span style={{ color: '#F59E0B', fontWeight: 900 }}>🏆 WINNER</span>}
       </div>
 
       {/* Bottom Row: Kills, Home, Appeals Badges */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2px', paddingTop: '2px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-        <span title="Kills" style={{ fontSize: '8px', color: '#EF4444', fontWeight: 700 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2px', paddingTop: '3px', borderTop: '1px solid rgba(255,255,255,0.15)' }}>
+        <span title="Kills" style={{ fontSize: '11.5px', color: '#EF4444', fontWeight: 900 }}>
           ⚔️ {player?.kills || 0}
         </span>
-        <span title="Tokens in Home" style={{ fontSize: '8px', color: '#10B981', fontWeight: 700 }}>
+        <span title="Tokens in Home" style={{ fontSize: '11.5px', color: '#10B981', fontWeight: 900 }}>
           🏠 {finishedCount}/4
         </span>
-        <span title="Appeals Remaining" style={{ fontSize: '8px', color: '#F59E0B', fontWeight: 700 }}>
+        <span title="Appeals Remaining" style={{ fontSize: '11.5px', color: '#F59E0B', fontWeight: 900 }}>
           ⚖️ {player?.appealsLeft ?? 3}
         </span>
       </div>
@@ -735,7 +734,7 @@ export default function Board6P({ gameState, myColor, onMoveToken, onOpenThrowMe
         {sectors.map((sec, idx) => (
           <g key={`sec-group-${idx}`}>
             <circle cx={sec.x} cy={sec.y} r="54" fill={sec.hex} opacity="0.85" stroke="#FFFFFF" strokeWidth="2" />
-            <foreignObject x={sec.x - 65} y={sec.y - 50} width="130" height="70" transform={`rotate(${-rotationAngle}, ${sec.x}, ${sec.y})`}>
+            <foreignObject x={sec.x - 72} y={sec.y - 52} width="144" height="80" transform={`rotate(${-rotationAngle}, ${sec.x}, ${sec.y})`}>
               <YardPlayerCard6P 
                 color={sec.color} 
                 player={players[sec.color]} 
