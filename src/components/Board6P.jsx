@@ -577,7 +577,7 @@ export default function Board6P({ gameState, myColor, onMoveToken, onOpenThrowMe
 
   const handleTokenClick = (color, tokenIndex, tokCx, tokCy) => {
     let targetColor = activeColor;
-    let isClickable = (isMyTurn && color === activeColor && !gameState.canRoll);
+    let isClickable = (isMyTurn && color === activeColor && (gameState.dicePool?.length > 0 || !gameState.canRoll));
 
     if (gameState.appealState && gameState.appealState.inDemo) {
       if (myColor === gameState.appealState.appealingColor && color === gameState.appealState.offendingColor) {
@@ -787,7 +787,7 @@ export default function Board6P({ gameState, myColor, onMoveToken, onOpenThrowMe
           const r = offsetInfo.r;
 
           const player = players[tok.color];
-          const options = (isMyTurn && tok.color === activeColor && !gameState.canRoll)
+          const options = (isMyTurn && tok.color === activeColor && (gameState.dicePool?.length > 0 || !gameState.canRoll))
             ? getValidRollOptionsForToken(player, tok.tIdx, gameState.dicePool, 76, killRequired, gameState, tok.color)
             : [];
           let isMoveable = options.length > 0;
