@@ -169,6 +169,7 @@ export default function MiniCornerPod({
 
   return (
     <div
+      data-player-color={color}
       data-corner-pod={color}
       className={`mini-corner-pod ${isActive ? 'pod-active' : ''} ${isMyTurn ? 'my-pod-active' : ''}`}
       style={{
