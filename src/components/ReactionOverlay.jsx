@@ -20,7 +20,9 @@ export default function ReactionOverlay({ activeReactions = [] }) {
       if (processedIdsRef.current.has(r.id)) return;
       processedIdsRef.current.add(r.id);
 
-      // Default screen position per color
+      const colorKey = r.fromColor ? r.fromColor.toLowerCase() : 'red';
+
+      // Default screen position fallback per color
       const defaultColorCoords = {
         red: { x: window.innerWidth * 0.25, y: window.innerHeight * 0.25 },
         green: { x: window.innerWidth * 0.75, y: window.innerHeight * 0.25 },
@@ -31,20 +33,19 @@ export default function ReactionOverlay({ activeReactions = [] }) {
       };
 
       // Helper to find visible element center on screen
-      const getVisibleElementCenter = (color) => {
-        const elements = document.querySelectorAll(
-          `[data-corner-pod="${color}"], [data-player-color="${color}"]`
-        );
+      const getVisibleElementCenter = (c) => {
+        if (!c) return null;
+        const normalizedColor = c.toLowerCase();
+        const selectors = [
+          `[data-corner-pod="${normalizedColor}"]`,
+          `[data-player-color="${normalizedColor}"]`,
+          `[data-corner-pod="${c}"]`,
+          `[data-player-color="${c}"]`
+        ];
+        const elements = document.querySelectorAll(selectors.join(', '));
         for (const el of elements) {
           const rect = el.getBoundingClientRect();
-          if (
-            rect.width > 0 &&
-            rect.height > 0 &&
-            rect.top < window.innerHeight &&
-            rect.bottom > 0 &&
-            rect.left < window.innerWidth &&
-            rect.right > 0
-          ) {
+          if (rect.width > 0 && rect.height > 0) {
             return {
               x: rect.left + rect.width / 2,
               y: rect.top + rect.height / 2
@@ -54,26 +55,32 @@ export default function ReactionOverlay({ activeReactions = [] }) {
         return null;
       };
 
-      const podCenter = getVisibleElementCenter(r.fromColor);
-      const defaultPos = defaultColorCoords[r.fromColor] || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+      const podCenter = getVisibleElementCenter(colorKey);
+      const defaultPos = defaultColorCoords[colorKey] || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
       const posX = podCenter ? podCenter.x : defaultPos.x;
       const posY = podCenter ? podCenter.y : defaultPos.y;
 
       // Play audio synthesizer sound effect for this reaction
       sounds.playReaction(r.reactionId);
 
-      // Generate 6 particle offsets around the origin for a multi-emoji shower
-      const particles = Array.from({ length: 6 }).map((_, idx) => ({
-        id: `${r.id}_p_${idx}`,
-        dx: (Math.random() - 0.5) * 120,
-        rot: (Math.random() - 0.5) * 60,
-        delay: Math.random() * 0.15,
-        scale: 0.8 + Math.random() * 0.6
-      }));
+      // Generate 6 particle offsets around origin with precomputed mid values for WebKit compatibility
+      const particles = Array.from({ length: 6 }).map((_, idx) => {
+        const dx = (Math.random() - 0.5) * 140;
+        const rot = (Math.random() - 0.5) * 60;
+        return {
+          id: `${r.id}_p_${idx}`,
+          dx,
+          dxMid: dx * 0.7,
+          rot,
+          rotMid: rot * 0.5,
+          delay: Math.random() * 0.15,
+          scale: 0.85 + Math.random() * 0.6
+        };
+      });
 
       const newReactionItem = {
         id: r.id,
-        fromColor: r.fromColor,
+        fromColor: colorKey,
         senderName: r.senderName,
         reactionId: r.reactionId,
         emoji: r.emoji,
@@ -97,7 +104,7 @@ export default function ReactionOverlay({ activeReactions = [] }) {
       position: 'fixed',
       inset: 0,
       pointerEvents: 'none',
-      zIndex: 9992,
+      zIndex: 99999,
       overflow: 'hidden'
     }}>
       {displayedReactions.map((item) => {
@@ -111,7 +118,6 @@ export default function ReactionOverlay({ activeReactions = [] }) {
                 position: 'absolute',
                 left: `${item.x}px`,
                 top: `${item.y - 45}px`,
-                transform: 'translate(-50%, -100%)',
                 background: `linear-gradient(135deg, ${mainColorHex}E6, #0F172A)`,
                 border: `2px solid ${mainColorHex}`,
                 borderRadius: '20px',
@@ -121,7 +127,7 @@ export default function ReactionOverlay({ activeReactions = [] }) {
                 alignItems: 'center',
                 gap: '8px',
                 color: '#FFF',
-                zIndex: 9995
+                zIndex: 99999
               }}
             >
               <span style={{ fontSize: '1.8rem', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))' }}>
@@ -149,8 +155,10 @@ export default function ReactionOverlay({ activeReactions = [] }) {
                   fontSize: `${1.6 * p.scale}rem`,
                   animationDelay: `${p.delay}s`,
                   '--particle-dx': `${p.dx}px`,
+                  '--particle-dx-mid': `${p.dxMid}px`,
                   '--particle-rot': `${p.rot}deg`,
-                  zIndex: 9993,
+                  '--particle-rot-mid': `${p.rotMid}deg`,
+                  zIndex: 99999,
                   filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))'
                 }}
               >

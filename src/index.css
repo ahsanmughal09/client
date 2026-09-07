@@ -880,22 +880,23 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
 @keyframes reactionPopBubble {
   0% {
     opacity: 0;
-    transform: scale(0.3) translateY(20px);
+    transform: translate(-50%, -100%) scale(0.3) translateY(20px);
   }
   30% {
     opacity: 1;
-    transform: scale(1.15) translateY(-5px);
+    transform: translate(-50%, -100%) scale(1.15) translateY(-5px);
   }
   50% {
-    transform: scale(1) translateY(0);
+    opacity: 1;
+    transform: translate(-50%, -100%) scale(1) translateY(0);
   }
   80% {
     opacity: 1;
-    transform: scale(1) translateY(-10px);
+    transform: translate(-50%, -100%) scale(1) translateY(-10px);
   }
   100% {
     opacity: 0;
-    transform: scale(0.8) translateY(-30px);
+    transform: translate(-50%, -100%) scale(0.8) translateY(-30px);
   }
 }
 
@@ -906,11 +907,11 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
   }
   50% {
     opacity: 0.9;
-    transform: translate(calc(var(--particle-dx, 0px) * 0.7), -70px) scale(1.3) rotate(calc(var(--particle-rot, 0deg) * 0.5));
+    transform: translate(var(--particle-dx-mid, 0px), -70px) scale(1.3) rotate(var(--particle-rot-mid, 0deg));
   }
   100% {
     opacity: 0;
-    transform: translate(var(--particle-dx, 0px), -150px) scale(1.6) rotate(var(--particle-rot, 0deg));
+    transform: translate(var(--particle-dx, 0px), -160px) scale(1.6) rotate(var(--particle-rot, 0deg));
   }
 }
 
