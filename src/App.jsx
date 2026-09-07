@@ -11,6 +11,8 @@ import ChatPanel from './components/ChatPanel';
 import VictoryModal from './components/VictoryModal';
 import ThrowableOverlay from './components/ThrowableOverlay';
 import ThrowablePickerModal from './components/ThrowablePickerModal';
+import ReactionOverlay from './components/ReactionOverlay';
+import ReactionPickerModal from './components/ReactionPickerModal';
 import ExtraTurnBanner from './components/ExtraTurnBanner';
 import ConfirmModal from './components/ConfirmModal';
 import confetti from 'canvas-confetti';
@@ -40,6 +42,10 @@ export default function App() {
   // Throwable Items State
   const [activeThrows, setActiveThrows] = useState([]);
   const [throwTarget, setThrowTarget] = useState(null);
+
+  // Emoji Reactions State
+  const [activeReactions, setActiveReactions] = useState([]);
+  const [isReactionPickerOpen, setIsReactionPickerOpen] = useState(false);
 
   // Extra Turn Notification State
   const [extraTurnNotice, setExtraTurnNotice] = useState(null);
@@ -280,6 +286,10 @@ export default function App() {
       setActiveThrows(prev => [...prev, throwData]);
     });
 
+    socket.on('PLAYER_REACTED', (reactionData) => {
+      setActiveReactions(prev => [...prev, reactionData]);
+    });
+
     return () => {
       socket.off('ROOM_UPDATED');
       socket.off('GAME_STARTED');
@@ -295,6 +305,7 @@ export default function App() {
       socket.off('APPEAL_TICK');
       socket.off('APPEAL_DEMO_TICK');
       socket.off('ITEM_THROWN');
+      socket.off('PLAYER_REACTED');
     };
   }, [myColor]);
 
@@ -406,6 +417,10 @@ export default function App() {
     socket.emit('THROW_ITEM', { roomCode, targetColor, item });
   };
 
+  const handleSendReaction = (reactionId) => {
+    socket.emit('SEND_REACTION', { roomCode, reactionId });
+  };
+
   const handlePlayAgain = () => {
     sessionStorage.removeItem('ludo_session');
     setView('home');
@@ -443,11 +458,21 @@ export default function App() {
   const isHost = slots[myColor]?.isHost;
   const isMyTurn = gameState && gameState.activeColor === myColor;
 
+  // Header Appeal calculation
+  const canAppealLastTurn = gameState?.canAppealLastTurn;
+  const lastTurnOffendingColor = gameState?.lastTurnOffendingColor;
+  const myAppealsLeft = gameState?.players?.[myColor]?.appealsLeft ?? 3;
+  const amIOffender = lastTurnOffendingColor && (myColor === lastTurnOffendingColor);
+  const canHeaderAppeal = canAppealLastTurn && !amIOffender && myAppealsLeft > 0;
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: '#FFF' }}>
       
       {/* Global Throwable Items Flight & Splat Overlay */}
       <ThrowableOverlay activeThrows={activeThrows} />
+
+      {/* Global Real-Time Emoji Reaction Bubbles & Shower Overlay */}
+      <ReactionOverlay activeReactions={activeReactions} />
 
       {/* Extra Turn Notification Banner */}
       <ExtraTurnBanner notice={extraTurnNotice} onClose={() => setExtraTurnNotice(null)} />
@@ -510,6 +535,13 @@ export default function App() {
         />
       )}
 
+      {/* Emoji Reaction Picker Modal */}
+      <ReactionPickerModal
+        isOpen={isReactionPickerOpen}
+        onClose={() => setIsReactionPickerOpen(false)}
+        onSelect={handleSendReaction}
+      />
+
       {/* Home View */}
       {view === 'home' && (
         <HomeLobby onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} showAlert={showAlert} />
@@ -526,6 +558,8 @@ export default function App() {
           onStartGame={handleStartGame} 
           onLeaveRoom={handleLeaveRoom}
           onOpenThrowMenu={handleOpenThrowMenu}
+          onOpenReactionPicker={() => setIsReactionPickerOpen(true)}
+          onSendReaction={handleSendReaction}
         />
       )}
 
@@ -600,8 +634,58 @@ export default function App() {
               </div>
             )}
 
-            {/* Right: Actions (Chat, My Color, Leave) */}
+            {/* Right: Actions (Appeal, Chat, My Color, Leave) */}
             <div className="top-bar-right">
+              {/* Header Appeal Button */}
+              {canHeaderAppeal && (
+                <button
+                  onClick={() => {
+                    sounds.playClick();
+                    handleSubmitAppeal();
+                  }}
+                  title="Appeal missed kill!"
+                  style={{
+                    background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                    border: '1.5px solid #FEF08A',
+                    borderRadius: '16px',
+                    color: '#FFFFFF',
+                    fontSize: '0.8rem',
+                    padding: '5px 12px',
+                    cursor: 'pointer',
+                    fontWeight: 900,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    boxShadow: '0 0 16px rgba(245, 158, 11, 0.9), 0 0 8px rgba(254, 240, 138, 0.8)',
+                    animation: 'pulse 1s infinite',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <span>⚖️</span>
+                  <span>APPEAL ({myAppealsLeft})</span>
+                </button>
+              )}
+
+              {/* Appeal Demo Status Badge */}
+              {gameState?.appealState?.inDemo && (
+                <div style={{
+                  background: '#4F46E5',
+                  border: '1.5px solid #C7D2FE',
+                  borderRadius: '16px',
+                  color: '#FFF',
+                  fontSize: '0.78rem',
+                  fontWeight: 900,
+                  padding: '5px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  boxShadow: '0 0 12px rgba(79, 70, 229, 0.8)'
+                }}>
+                  <span>⏳ DEMO:</span>
+                  <span>{gameState.appealState.demoTimeLeft}s</span>
+                </div>
+              )}
+
               <button
                 onClick={() => {
                   setIsMobileChatOpen(true);
@@ -657,6 +741,8 @@ export default function App() {
                   onRollDice={handleRollDice}
                   onSelectRoll={handleSelectRoll}
                   onOpenThrowMenu={handleOpenThrowMenu}
+                  onOpenReactionPicker={() => setIsReactionPickerOpen(true)}
+                  onSendReaction={handleSendReaction}
                   onSubmitAppeal={handleSubmitAppeal}
                 />
               );
