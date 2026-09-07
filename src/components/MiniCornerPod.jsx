@@ -21,7 +21,8 @@ const REACTION_ITEMS = [
   { id: 'tongue', emoji: '😜', label: 'Tongue' },
   { id: 'angry', emoji: '😡', label: 'Angry' },
   { id: 'cry', emoji: '😭', label: 'Cry' },
-  { id: 'victory', emoji: '🏆', label: 'Victory' }
+  { id: 'victory', emoji: '🏆', label: 'Victory' },
+  { id: 'glasses', emoji: '😎', label: 'Show Off' }
 ];
 
 function SpaciousDiceCube({ val, rolling, isMyTurn, canRoll, showingSixDelay, theme = 'standard', size = 34 }) {

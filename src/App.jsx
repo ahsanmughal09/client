@@ -252,7 +252,8 @@ export default function App() {
           '😜': { id: 'tongue', label: 'Tongue Out' },
           '😡': { id: 'angry', label: 'Angry' },
           '😭': { id: 'cry', label: 'Cry' },
-          '🏆': { id: 'victory', label: 'Victory' }
+          '🏆': { id: 'victory', label: 'Victory' },
+          '😎': { id: 'glasses', label: 'Show Off' }
         };
         const rInfo = EMOJI_TO_REACTION[msg.emote];
         if (rInfo) {
@@ -452,7 +453,8 @@ export default function App() {
       tongue: { emoji: '😜', label: 'Tongue Out' },
       angry: { emoji: '😡', label: 'Angry' },
       cry: { emoji: '😭', label: 'Cry' },
-      victory: { emoji: '🏆', label: 'Victory' }
+      victory: { emoji: '🏆', label: 'Victory' },
+      glasses: { emoji: '😎', label: 'Show Off' }
     };
     const reaction = reactionMap[reactionId];
     if (!reaction) return;

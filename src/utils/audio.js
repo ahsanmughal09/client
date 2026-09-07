@@ -376,6 +376,24 @@ class SoundEngine {
     });
   }
 
+  playReactionGlasses() {
+    this.init();
+    const now = this.ctx.currentTime;
+    // Upbeat cool sunglasses slide (A4 -> C#5 -> E5 -> G#5 -> B5)
+    [440, 554.37, 659.25, 830.61, 987.77].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+      gain.gain.setValueAtTime(0.35, now + idx * 0.06);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.06 + 0.2);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now + idx * 0.06);
+      osc.stop(now + idx * 0.06 + 0.2);
+    });
+  }
+
   playReaction(reactionId) {
     switch (reactionId) {
       case 'laugh':
@@ -395,6 +413,9 @@ class SoundEngine {
         break;
       case 'victory':
         this.playReactionVictory();
+        break;
+      case 'glasses':
+        this.playReactionGlasses();
         break;
       default:
         this.playClick();

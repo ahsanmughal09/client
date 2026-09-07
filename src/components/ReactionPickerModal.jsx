@@ -8,7 +8,8 @@ export const REACTION_ITEMS = [
   { id: 'tongue', emoji: '😜', name: 'Tongue', desc: 'Silly Tongue' },
   { id: 'angry', emoji: '😡', name: 'Angry', desc: 'Grrr!' },
   { id: 'cry', emoji: '😭', name: 'Cry', desc: 'Sob Sob' },
-  { id: 'victory', emoji: '🏆', name: 'Victory', desc: 'Winner!' }
+  { id: 'victory', emoji: '🏆', name: 'Victory', desc: 'Winner!' },
+  { id: 'glasses', emoji: '😎', name: 'Show Off', desc: 'Cool Flex!' }
 ];
 
 export default function ReactionPickerModal({ isOpen, onClose, onSelect }) {
