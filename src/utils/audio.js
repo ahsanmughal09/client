@@ -394,6 +394,77 @@ class SoundEngine {
     });
   }
 
+  playReactionFrightened() {
+    this.init();
+    const now = this.ctx.currentTime;
+    // High-pitch trembling panic screech (tremolo 1200Hz -> 900Hz)
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(1100, now);
+    osc.frequency.linearRampToValueAtTime(750, now + 0.3);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.32);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.32);
+  }
+
+  playReactionConfused() {
+    this.init();
+    const now = this.ctx.currentTime;
+    // Wobbly question mark synth tone (rising pitch inflection)
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(380, now);
+    osc.frequency.linearRampToValueAtTime(320, now + 0.12);
+    osc.frequency.linearRampToValueAtTime(580, now + 0.28);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.3);
+  }
+
+  playReactionNervous() {
+    this.init();
+    const now = this.ctx.currentTime;
+    // Rapid nervous chatter wobble
+    [450, 480, 450, 480, 450, 480].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+      gain.gain.setValueAtTime(0.25, now + idx * 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.04 + 0.035);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now + idx * 0.04);
+      osc.stop(now + idx * 0.04 + 0.035);
+    });
+  }
+
+  playReactionSad() {
+    this.init();
+    const now = this.ctx.currentTime;
+    // Soft melancholic descending tone (E5 -> D5 -> C5 -> A4)
+    [659.25, 587.33, 523.25, 440].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+      gain.gain.setValueAtTime(0.25, now + idx * 0.09);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.09 + 0.22);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now + idx * 0.09);
+      osc.stop(now + idx * 0.09 + 0.22);
+    });
+  }
+
   playReaction(reactionId) {
     switch (reactionId) {
       case 'laugh':
@@ -411,11 +482,20 @@ class SoundEngine {
       case 'cry':
         this.playReactionCry();
         break;
-      case 'victory':
-        this.playReactionVictory();
-        break;
       case 'glasses':
         this.playReactionGlasses();
+        break;
+      case 'frightened':
+        this.playReactionFrightened();
+        break;
+      case 'confused':
+        this.playReactionConfused();
+        break;
+      case 'nervous':
+        this.playReactionNervous();
+        break;
+      case 'sad':
+        this.playReactionSad();
         break;
       default:
         this.playClick();

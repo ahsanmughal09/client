@@ -243,33 +243,6 @@ export default function App() {
         }
         return open;
       });
-
-      // Reaction animation fallback for emotes sent via room chat
-      if (msg && msg.emote) {
-        const EMOJI_TO_REACTION = {
-          '😂': { id: 'laugh', label: 'Laugh' },
-          '😍': { id: 'heart_eyes', label: 'Heart Eyes' },
-          '😜': { id: 'tongue', label: 'Tongue Out' },
-          '😡': { id: 'angry', label: 'Angry' },
-          '😭': { id: 'cry', label: 'Cry' },
-          '🏆': { id: 'victory', label: 'Victory' },
-          '😎': { id: 'glasses', label: 'Show Off' }
-        };
-        const rInfo = EMOJI_TO_REACTION[msg.emote];
-        if (rInfo) {
-          setActiveReactions((prev) => [
-            ...prev,
-            {
-              id: `${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-              fromColor: msg.color ? msg.color.toLowerCase() : 'red',
-              senderName: msg.sender || 'Player',
-              reactionId: rInfo.id,
-              emoji: msg.emote,
-              label: rInfo.label
-            }
-          ]);
-        }
-      }
     });
 
     // Appeal System Listeners
@@ -445,39 +418,8 @@ export default function App() {
   };
 
   const handleSendReaction = (reactionId) => {
-    if (!reactionId) return;
-
-    const reactionMap = {
-      laugh: { emoji: '😂', label: 'Laugh' },
-      heart_eyes: { emoji: '😍', label: 'Heart Eyes' },
-      tongue: { emoji: '😜', label: 'Tongue Out' },
-      angry: { emoji: '😡', label: 'Angry' },
-      cry: { emoji: '😭', label: 'Cry' },
-      victory: { emoji: '🏆', label: 'Victory' },
-      glasses: { emoji: '😎', label: 'Show Off' }
-    };
-    const reaction = reactionMap[reactionId];
-    if (!reaction) return;
-
-    // 1. Optimistic Local Trigger for instant visual & sound FX
-    const localId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-    setActiveReactions(prev => [
-      ...prev,
-      {
-        id: localId,
-        fromColor: myColor || 'red',
-        senderName: slots[myColor]?.name || (myColor ? myColor.toUpperCase() : 'YOU'),
-        reactionId,
-        emoji: reaction.emoji,
-        label: reaction.label
-      }
-    ]);
-
-    // 2. Broadcast via SEND_REACTION event
+    if (!reactionId || !roomCode) return;
     socket.emit('SEND_REACTION', { roomCode, reactionId });
-
-    // 3. Dual-broadcast via SEND_CHAT event to guarantee room delivery even on un-restarted servers
-    socket.emit('SEND_CHAT', { roomCode, emote: reaction.emoji });
   };
 
   const handlePlayAgain = () => {

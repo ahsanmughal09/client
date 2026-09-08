@@ -7,7 +7,11 @@ export const REACTION_ITEMS = [
   { id: 'tongue', emoji: '😜', label: 'Tongue' },
   { id: 'angry', emoji: '😡', label: 'Angry' },
   { id: 'cry', emoji: '😭', label: 'Cry' },
-  { id: 'victory', emoji: '🏆', label: 'Victory' }
+  { id: 'glasses', emoji: '😎', label: 'Show Off' },
+  { id: 'frightened', emoji: '😱', label: 'Scared' },
+  { id: 'confused', emoji: '😕', label: 'Confused' },
+  { id: 'nervous', emoji: '😬', label: 'Nervous' },
+  { id: 'sad', emoji: '🥺', label: 'Sad' }
 ];
 
 export default function QuickReactionDock({ onSendReaction }) {

@@ -8,8 +8,11 @@ export const REACTION_ITEMS = [
   { id: 'tongue', emoji: '😜', name: 'Tongue', desc: 'Silly Tongue' },
   { id: 'angry', emoji: '😡', name: 'Angry', desc: 'Grrr!' },
   { id: 'cry', emoji: '😭', name: 'Cry', desc: 'Sob Sob' },
-  { id: 'victory', emoji: '🏆', name: 'Victory', desc: 'Winner!' },
-  { id: 'glasses', emoji: '😎', name: 'Show Off', desc: 'Cool Flex!' }
+  { id: 'glasses', emoji: '😎', name: 'Show Off', desc: 'Cool Flex!' },
+  { id: 'frightened', emoji: '😱', name: 'Scared', desc: 'Frightened' },
+  { id: 'confused', emoji: '😕', name: 'Confused', desc: 'Huh?' },
+  { id: 'nervous', emoji: '😬', name: 'Nervous', desc: 'Eek!' },
+  { id: 'sad', emoji: '🥺', name: 'Sad', desc: 'Aw...' }
 ];
 
 export default function ReactionPickerModal({ isOpen, onClose, onSelect }) {
@@ -45,7 +48,7 @@ export default function ReactionPickerModal({ isOpen, onClose, onSelect }) {
           borderRadius: '24px',
           boxShadow: '0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(129, 140, 248, 0.4)',
           width: '100%',
-          maxWidth: '360px',
+          maxWidth: '420px',
           padding: '20px',
           boxSizing: 'border-box',
           animation: 'popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)'
@@ -95,11 +98,11 @@ export default function ReactionPickerModal({ isOpen, onClose, onSelect }) {
           </button>
         </div>
 
-        {/* Reaction Grid */}
+        {/* Reaction Grid: 5 columns x 2 rows */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '10px'
+          gridTemplateColumns: 'repeat(5, 1fr)',
+          gap: '8px'
         }}>
           {REACTION_ITEMS.map((item) => (
             <button
@@ -108,26 +111,26 @@ export default function ReactionPickerModal({ isOpen, onClose, onSelect }) {
               style={{
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: '16px',
-                padding: '14px 8px',
+                borderRadius: '14px',
+                padding: '10px 4px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '4px',
+                gap: '2px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 userSelect: 'none'
               }}
               className="throw-item-btn"
             >
-              <span style={{ fontSize: '2.2rem', transform: 'scale(1)', transition: 'transform 0.2s' }}>
+              <span style={{ fontSize: '1.8rem', transform: 'scale(1)', transition: 'transform 0.2s' }}>
                 {item.emoji}
               </span>
-              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#F8FAFC' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#F8FAFC', textAlign: 'center', whiteSpace: 'nowrap' }}>
                 {item.name}
               </span>
-              <span style={{ fontSize: '0.65rem', color: '#94A3B8' }}>
+              <span style={{ fontSize: '0.6rem', color: '#94A3B8', textAlign: 'center', whiteSpace: 'nowrap' }}>
                 {item.desc}
               </span>
             </button>
