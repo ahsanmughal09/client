@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { socket } from './utils/socket';
 import { sounds } from './utils/audio';
 import { getCornerMap4P } from './utils/orientation';
@@ -38,6 +38,8 @@ export default function App() {
   const [timeLeft, setTimeLeft] = useState(30);
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
+  const [latestChatPopover, setLatestChatPopover] = useState(null);
+  const chatPopoverTimerRef = useRef(null);
 
   // Throwable Items State
   const [activeThrows, setActiveThrows] = useState([]);
@@ -240,6 +242,22 @@ export default function App() {
       setIsMobileChatOpen((open) => {
         if (!open) {
           setUnreadChatCount((count) => count + 1);
+
+          if (msg && (msg.text || msg.sender)) {
+            setLatestChatPopover({
+              sender: msg.sender || 'Player',
+              color: msg.color || 'blue',
+              text: msg.text || '',
+              id: Date.now()
+            });
+
+            if (chatPopoverTimerRef.current) {
+              clearTimeout(chatPopoverTimerRef.current);
+            }
+            chatPopoverTimerRef.current = setTimeout(() => {
+              setLatestChatPopover(null);
+            }, 4500);
+          }
         }
         return open;
       });
@@ -687,22 +705,104 @@ export default function App() {
                 </div>
               )}
 
-              <button
-                onClick={() => {
-                  setIsMobileChatOpen(true);
-                  setUnreadChatCount(0);
-                }}
-                className="top-bar-action-btn chat-btn"
-                title="Open Room Chat"
-              >
-                <MessageSquare size={13} color="#818CF8" />
-                <span className="btn-label-desktop">Chat</span>
-                {unreadChatCount > 0 && (
-                  <span className="unread-badge">
-                    {unreadChatCount}
-                  </span>
+              {/* Chat Trigger Button with Message Popover Pointer */}
+              <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                <button
+                  onClick={() => {
+                    setIsMobileChatOpen(true);
+                    setUnreadChatCount(0);
+                    setLatestChatPopover(null);
+                  }}
+                  className="top-bar-action-btn chat-btn"
+                  title="Open Room Chat"
+                >
+                  <MessageSquare size={13} color="#818CF8" />
+                  <span className="btn-label-desktop">Chat</span>
+                  {unreadChatCount > 0 && (
+                    <span className="unread-badge">
+                      {unreadChatCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Popover pointing towards Chat trigger button */}
+                {latestChatPopover && !isMobileChatOpen && (
+                  <div
+                    onClick={() => {
+                      setIsMobileChatOpen(true);
+                      setUnreadChatCount(0);
+                      setLatestChatPopover(null);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 10px)',
+                      right: 0,
+                      zIndex: 9999,
+                      background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98))',
+                      backdropFilter: 'blur(16px)',
+                      WebkitBackdropFilter: 'blur(16px)',
+                      border: `1.5px solid ${COLOR_HEX_CHIP[latestChatPopover.color] || '#818CF8'}`,
+                      borderRadius: '16px',
+                      padding: '8px 12px',
+                      boxShadow: `0 12px 30px rgba(0, 0, 0, 0.7), 0 0 20px ${COLOR_HEX_CHIP[latestChatPopover.color] || '#818CF8'}40`,
+                      minWidth: '180px',
+                      maxWidth: '240px',
+                      cursor: 'pointer',
+                      animation: 'popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '2px',
+                      textAlign: 'left'
+                    }}
+                  >
+                    {/* Arrow pointing UP directly at the Chat button */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-7px',
+                      right: '18px',
+                      width: 0,
+                      height: 0,
+                      borderLeft: '7px solid transparent',
+                      borderRight: '7px solid transparent',
+                      borderBottom: `7px solid ${COLOR_HEX_CHIP[latestChatPopover.color] || '#818CF8'}`
+                    }} />
+
+                    {/* Popover Header: Sender & time */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <MessageSquare size={11} color={COLOR_HEX_CHIP[latestChatPopover.color] || '#818CF8'} />
+                        <span style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 800,
+                          color: COLOR_HEX_CHIP[latestChatPopover.color] || '#818CF8',
+                          lineHeight: 1.1
+                        }}>
+                          {latestChatPopover.sender}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.62rem', color: '#94A3B8', fontWeight: 600 }}>
+                        now
+                      </span>
+                    </div>
+
+                    {/* Popover Message Content (Truncated if long) */}
+                    <span style={{
+                      fontSize: '0.78rem',
+                      color: '#F8FAFC',
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      maxWidth: '100%',
+                      marginTop: '2px'
+                    }}>
+                      {latestChatPopover.text.length > 35
+                        ? latestChatPopover.text.slice(0, 35) + '...'
+                        : latestChatPopover.text}
+                    </span>
+                  </div>
                 )}
-              </button>
+              </div>
 
               <span 
                 className="top-bar-mycolor-badge"
