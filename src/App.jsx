@@ -595,52 +595,7 @@ export default function App() {
               </h2>
             </div>
 
-            {/* Center: Prominent Active Turn Pill */}
-            {gameState.activeColor && (
-              <div
-                className={`top-bar-turn-badge ${isMyTurn ? 'my-turn-active-pill' : ''}`}
-                style={{
-                  background: isMyTurn
-                    ? 'linear-gradient(135deg, rgba(46, 213, 115, 0.28), rgba(15, 23, 42, 0.95))'
-                    : `linear-gradient(135deg, ${COLOR_HEX_CHIP[gameState.activeColor]}28, rgba(15, 23, 42, 0.95))`,
-                  border: isMyTurn ? '1.5px solid #2ED573' : `1.5px solid ${COLOR_HEX_CHIP[gameState.activeColor] || '#6366F1'}`,
-                  boxShadow: isMyTurn ? '0 0 14px rgba(46, 213, 115, 0.6)' : `0 0 10px ${COLOR_HEX_CHIP[gameState.activeColor]}40`
-                }}
-              >
-                <div
-                  className="turn-dot-indicator"
-                  style={{
-                    background: isMyTurn ? '#2ED573' : (COLOR_HEX_CHIP[gameState.activeColor] || '#6366F1'),
-                    boxShadow: `0 0 8px ${COLOR_HEX_CHIP[gameState.activeColor]}`
-                  }}
-                />
-                <span className="turn-text-content">
-                  {isMyTurn ? (
-                    <span style={{ color: '#2ED573', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                      ⚡ YOUR TURN
-                    </span>
-                  ) : (
-                    <span style={{ color: '#CBD5E1' }}>
-                      Turn: <strong style={{ color: COLOR_HEX_CHIP[gameState.activeColor] }}>
-                        {(gameState.players?.[gameState.activeColor]?.name || gameState.activeColor).toUpperCase()}
-                      </strong>
-                    </span>
-                  )}
-                </span>
-                {timeLeft !== undefined && (
-                  <span
-                    className="turn-timer-badge"
-                    style={{
-                      color: timeLeft <= 5 ? '#FF4757' : (timeLeft <= 10 ? '#FFA502' : '#F1F5F9')
-                    }}
-                  >
-                    ⏱️{timeLeft}s
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Right: Actions (Appeal, Chat, My Color, Leave) */}
+            {/* Right: Actions (Appeal, Chat, Leave) */}
             <div className="top-bar-right">
               {/* Header Appeal Button */}
               {canHeaderAppeal && (
@@ -859,6 +814,7 @@ export default function App() {
                       <Board4P
                         gameState={gameState}
                         myColor={myColor}
+                        timeLeft={timeLeft}
                         onMoveToken={handleMoveToken}
                         onOpenThrowMenu={handleOpenThrowMenu}
                         onActionComplete={handleBoardActionComplete}
@@ -867,6 +823,7 @@ export default function App() {
                       <Board6P
                         gameState={gameState}
                         myColor={myColor}
+                        timeLeft={timeLeft}
                         onMoveToken={handleMoveToken}
                         onOpenThrowMenu={handleOpenThrowMenu}
                         onActionComplete={handleBoardActionComplete}

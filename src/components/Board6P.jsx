@@ -305,7 +305,7 @@ function YardPlayerCard6P({ color, player, isActive, isMe, teamName, finishStep 
   );
 }
 
-export default function Board6P({ gameState, myColor, onMoveToken, onOpenThrowMenu, onActionComplete }) {
+export default function Board6P({ gameState, myColor, timeLeft, onMoveToken, onOpenThrowMenu, onActionComplete }) {
   const [activePopup, setActivePopup] = useState(null);
   const [displaySteps, setDisplaySteps] = useState({});
   const [capturedLocks, setCapturedLocks] = useState({});
@@ -778,9 +778,71 @@ export default function Board6P({ gameState, myColor, onMoveToken, onOpenThrowMe
           });
         })}
 
-        {/* Central Home Finish Ring */}
-        <circle cx={cx} cy={cy} r="45" fill="#0F172A" stroke="#6366F1" strokeWidth="4" />
-        <text x={cx} y={cy + 6} fill="#F8FAFC" fontSize="16" fontWeight="bold" textAnchor="middle" transform={`rotate(${-rotationAngle}, 400, 400)`}>LUDO</text>
+        {/* Central Turn & Decreasing Timer Circle Hub */}
+        <g transform={`rotate(${-rotationAngle}, ${cx}, ${cy})`}>
+          {/* Dark central backdrop circle */}
+          <circle cx={cx} cy={cy} r="52" fill="#0F172A" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
+
+          {/* Background Timer Track Ring */}
+          <circle
+            cx={cx}
+            cy={cy}
+            r="48"
+            fill="none"
+            stroke="rgba(255, 255, 255, 0.12)"
+            strokeWidth="4"
+          />
+
+          {/* Decreasing Circular Timer Border */}
+          {activeColor && (
+            <circle
+              cx={cx}
+              cy={cy}
+              r="48"
+              fill="none"
+              stroke={timeLeft <= 5 ? '#FF4757' : (COLOR_HEX_6P[activeColor] || '#6366F1')}
+              strokeWidth="4.5"
+              strokeDasharray={301.59}
+              strokeDashoffset={301.59 * (1 - Math.max(0, Math.min(1, (timeLeft ?? 30) / (gameState?.settings?.turnTimer || 30))))}
+              strokeLinecap="round"
+              transform={`rotate(-90 ${cx} ${cy})`}
+              style={{ transition: 'stroke-dashoffset 0.4s linear, stroke 0.3s' }}
+            />
+          )}
+
+          {/* Center Content: Active Player Name & Decreasing Time */}
+          {activeColor ? (
+            <>
+              <text
+                x={cx}
+                y={cy - 8}
+                fill={COLOR_HEX_6P[activeColor] || '#F8FAFC'}
+                fontSize="13"
+                fontWeight="800"
+                textAnchor="middle"
+                style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+              >
+                {((players?.[activeColor]?.name || activeColor).length > 9 
+                  ? (players?.[activeColor]?.name || activeColor).slice(0, 8) + '..' 
+                  : (players?.[activeColor]?.name || activeColor))}
+              </text>
+              <text
+                x={cx}
+                y={cy + 14}
+                fill={timeLeft <= 5 ? '#FF4757' : '#F8FAFC'}
+                fontSize="16"
+                fontWeight="900"
+                textAnchor="middle"
+              >
+                ⏱️{timeLeft ?? 30}s
+              </text>
+            </>
+          ) : (
+            <text x={cx} y={cy + 6} fill="#F8FAFC" fontSize="16" fontWeight="bold" textAnchor="middle">
+              LUDO
+            </text>
+          )}
+        </g>
 
         {/* Tokens Rendering */}
         {allRenderTokens.map(tok => {

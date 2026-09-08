@@ -346,6 +346,7 @@ function getValidRollOptionsForToken(player, tokenIndex, dicePool, finishStep = 
 export default function Board4P({ 
   gameState, 
   myColor, 
+  timeLeft,
   onMoveToken, 
   onRollDice, 
   onSelectRoll, 
@@ -946,8 +947,72 @@ export default function Board4P({
         <polygon points="360,240 360,360 300,300" fill="#FFA502" />
         <polygon points="360,360 240,360 300,300" fill="#1E90FF" />
         <polygon points="240,360 240,240 300,300" fill="#FF4757" />
-        <circle cx="300" cy="300" r="28" fill="#0F172A" stroke="#F8FAFC" strokeWidth="3" />
-        <text x="300" y="306" fill="#F8FAFC" fontSize="16" fontWeight="bold" textAnchor="middle" transform={`rotate(${-rotationAngle}, 300, 300)`}>LUDO</text>
+
+        {/* Central Turn & Decreasing Timer Circle Hub */}
+        <g transform={`rotate(${-rotationAngle}, 300, 300)`}>
+          {/* Dark central backdrop circle */}
+          <circle cx="300" cy="300" r="44" fill="#0F172A" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
+
+          {/* Background Timer Track Ring */}
+          <circle
+            cx="300"
+            cy="300"
+            r="40"
+            fill="none"
+            stroke="rgba(255, 255, 255, 0.12)"
+            strokeWidth="4"
+          />
+
+          {/* Decreasing Circular Timer Border */}
+          {activeColor && (
+            <circle
+              cx="300"
+              cy="300"
+              r="40"
+              fill="none"
+              stroke={timeLeft <= 5 ? '#FF4757' : (COLOR_HEX_4P[activeColor] || '#6366F1')}
+              strokeWidth="4.5"
+              strokeDasharray={251.33}
+              strokeDashoffset={251.33 * (1 - Math.max(0, Math.min(1, (timeLeft ?? 30) / (gameState?.settings?.turnTimer || 30))))}
+              strokeLinecap="round"
+              transform="rotate(-90 300 300)"
+              style={{ transition: 'stroke-dashoffset 0.4s linear, stroke 0.3s' }}
+            />
+          )}
+
+          {/* Center Content: Active Player Name & Decreasing Time */}
+          {activeColor ? (
+            <>
+              <text
+                x="300"
+                y="292"
+                fill={COLOR_HEX_4P[activeColor] || '#F8FAFC'}
+                fontSize="12"
+                fontWeight="800"
+                textAnchor="middle"
+                style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+              >
+                {((players?.[activeColor]?.name || activeColor).length > 8 
+                  ? (players?.[activeColor]?.name || activeColor).slice(0, 7) + '..' 
+                  : (players?.[activeColor]?.name || activeColor))}
+              </text>
+              <text
+                x="300"
+                y="312"
+                fill={timeLeft <= 5 ? '#FF4757' : '#F8FAFC'}
+                fontSize="15"
+                fontWeight="900"
+                textAnchor="middle"
+              >
+                ⏱️{timeLeft ?? 30}s
+              </text>
+            </>
+          ) : (
+            <text x="300" y="306" fill="#F8FAFC" fontSize="16" fontWeight="bold" textAnchor="middle">
+              LUDO
+            </text>
+          )}
+        </g>
 
         {/* Tokens Rendering */}
         {allRenderTokens.map(tok => {
