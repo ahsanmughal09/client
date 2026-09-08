@@ -202,7 +202,7 @@ export default function App() {
         setExtraTurnNotice({
           color,
           title: '🚫 TURN CANCELLED!',
-          subtitle: isFourSixes 
+          subtitle: isFourSixes
             ? `4 Consecutive Sixes! Turn cancelled & all rolls lost for ${color.toUpperCase()}! 🚫`
             : `3 Consecutive Sixes! Turn cancelled & all rolls lost for ${color.toUpperCase()}! 🚫`,
           icon: '🚫',
@@ -450,8 +450,8 @@ export default function App() {
   const handleLeaveRoom = () => {
     const isPlaying = (view === 'game');
     const title = isPlaying ? 'Surrender Match?' : 'Leave Room?';
-    const message = isPlaying 
-      ? 'Are you sure you want to surrender and leave the active match?' 
+    const message = isPlaying
+      ? 'Are you sure you want to surrender and leave the active match?'
       : 'Are you sure you want to leave the room?';
     const confirmText = isPlaying ? 'Surrender & Leave' : 'Leave Room';
 
@@ -486,7 +486,7 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: '#FFF' }}>
-      
+
       {/* Global Throwable Items Flight & Splat Overlay */}
       <ThrowableOverlay activeThrows={activeThrows} />
 
@@ -506,7 +506,7 @@ export default function App() {
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 250,
-            background: turnToastNotice.isMyTurn 
+            background: turnToastNotice.isMyTurn
               ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.96), rgba(16, 185, 129, 0.96))'
               : `linear-gradient(135deg, ${COLOR_HEX_CHIP[turnToastNotice.color]}E6, #0F172A)`,
             backdropFilter: 'blur(12px)',
@@ -514,8 +514,8 @@ export default function App() {
             border: turnToastNotice.isMyTurn ? '2px solid #86EFAC' : `2px solid ${COLOR_HEX_CHIP[turnToastNotice.color]}`,
             borderRadius: '24px',
             padding: '8px 22px',
-            boxShadow: turnToastNotice.isMyTurn 
-              ? '0 10px 30px rgba(34, 197, 94, 0.6), 0 0 20px rgba(134, 239, 172, 0.8)' 
+            boxShadow: turnToastNotice.isMyTurn
+              ? '0 10px 30px rgba(34, 197, 94, 0.6), 0 0 20px rgba(134, 239, 172, 0.8)'
               : `0 10px 30px ${COLOR_HEX_CHIP[turnToastNotice.color]}60`,
             color: '#FFF',
             display: 'flex',
@@ -568,13 +568,13 @@ export default function App() {
 
       {/* Lobby View */}
       {view === 'lobby' && (
-        <GameLobby 
-          roomCode={roomCode} 
-          slots={slots} 
-          settings={settings} 
-          isHost={isHost} 
+        <GameLobby
+          roomCode={roomCode}
+          slots={slots}
+          settings={settings}
+          isHost={isHost}
           myColor={myColor}
-          onStartGame={handleStartGame} 
+          onStartGame={handleStartGame}
           onLeaveRoom={handleLeaveRoom}
           onOpenThrowMenu={handleOpenThrowMenu}
           onOpenReactionPicker={() => setIsReactionPickerOpen(true)}
@@ -585,47 +585,34 @@ export default function App() {
       {/* Active Game View */}
       {view === 'game' && gameState && (
         <div className="game-screen-container">
-          
+
           {/* Top Bar / Header */}
           <div className="glass-panel game-top-bar">
-            {/* Left: Brand & Room Code */}
+            {/* Left: Brand */}
             <div className="top-bar-left">
               <h2 className="top-bar-title">
                 LUDO {gameState.mode}
               </h2>
-              <span className="top-bar-room-badge">
-                <strong style={{ color: '#818CF8' }}>#{roomCode}</strong>
-              </span>
-              {gameState.customRules?.diceCount === 2 && (
-                <span className="top-bar-rule-chip desktop-only-rule">
-                  🎲 2 Dice
-                </span>
-              )}
-              {gameState.customRules?.killRequiredToEnterHome && (
-                <span className="top-bar-rule-chip desktop-only-rule">
-                  🎯 Kill Req
-                </span>
-              )}
             </div>
 
             {/* Center: Prominent Active Turn Pill */}
             {gameState.activeColor && (
-              <div 
+              <div
                 className={`top-bar-turn-badge ${isMyTurn ? 'my-turn-active-pill' : ''}`}
                 style={{
-                  background: isMyTurn 
-                    ? 'linear-gradient(135deg, rgba(46, 213, 115, 0.28), rgba(15, 23, 42, 0.95))' 
+                  background: isMyTurn
+                    ? 'linear-gradient(135deg, rgba(46, 213, 115, 0.28), rgba(15, 23, 42, 0.95))'
                     : `linear-gradient(135deg, ${COLOR_HEX_CHIP[gameState.activeColor]}28, rgba(15, 23, 42, 0.95))`,
                   border: isMyTurn ? '1.5px solid #2ED573' : `1.5px solid ${COLOR_HEX_CHIP[gameState.activeColor] || '#6366F1'}`,
                   boxShadow: isMyTurn ? '0 0 14px rgba(46, 213, 115, 0.6)' : `0 0 10px ${COLOR_HEX_CHIP[gameState.activeColor]}40`
                 }}
               >
-                <div 
+                <div
                   className="turn-dot-indicator"
                   style={{
                     background: isMyTurn ? '#2ED573' : (COLOR_HEX_CHIP[gameState.activeColor] || '#6366F1'),
                     boxShadow: `0 0 8px ${COLOR_HEX_CHIP[gameState.activeColor]}`
-                  }} 
+                  }}
                 />
                 <span className="turn-text-content">
                   {isMyTurn ? (
@@ -641,7 +628,7 @@ export default function App() {
                   )}
                 </span>
                 {timeLeft !== undefined && (
-                  <span 
+                  <span
                     className="turn-timer-badge"
                     style={{
                       color: timeLeft <= 5 ? '#FF4757' : (timeLeft <= 10 ? '#FFA502' : '#F1F5F9')
@@ -804,17 +791,7 @@ export default function App() {
                 )}
               </div>
 
-              <span 
-                className="top-bar-mycolor-badge"
-                style={{
-                  color: COLOR_HEX_CHIP[myColor] || '#FFF',
-                  borderColor: COLOR_HEX_CHIP[myColor] || 'rgba(255,255,255,0.2)'
-                }}
-              >
-                {myColor}
-              </span>
-
-              <button 
+              <button
                 onClick={handleLeaveRoom}
                 className="top-bar-action-btn leave-btn"
                 title="Leave Room"
@@ -856,7 +833,7 @@ export default function App() {
                   {renderPodByColor(cornerMap.TL)}
 
                   <div className="desktop-chat-wrapper">
-                    <ChatPanel 
+                    <ChatPanel
                       roomCode={roomCode}
                       socket={socket}
                       chatMessages={chatMessages}
@@ -869,7 +846,7 @@ export default function App() {
 
                 {/* Center Area: Connected Top/Bottom Pods on Mobile + Centered Board */}
                 <div className="center-game-wrapper">
-                  
+
                   {/* Mobile Top Connected Pods: Top-Left & Top-Right */}
                   <div className="mobile-pods-row top-pods">
                     {renderPodByColor(cornerMap.TL)}
@@ -879,20 +856,20 @@ export default function App() {
                   {/* Centered Clean Board */}
                   <div className="center-board-col">
                     {gameState.mode === '4P' ? (
-                      <Board4P 
-                        gameState={gameState} 
-                        myColor={myColor} 
-                        onMoveToken={handleMoveToken} 
-                        onOpenThrowMenu={handleOpenThrowMenu} 
-                        onActionComplete={handleBoardActionComplete} 
+                      <Board4P
+                        gameState={gameState}
+                        myColor={myColor}
+                        onMoveToken={handleMoveToken}
+                        onOpenThrowMenu={handleOpenThrowMenu}
+                        onActionComplete={handleBoardActionComplete}
                       />
                     ) : (
-                      <Board6P 
-                        gameState={gameState} 
-                        myColor={myColor} 
-                        onMoveToken={handleMoveToken} 
-                        onOpenThrowMenu={handleOpenThrowMenu} 
-                        onActionComplete={handleBoardActionComplete} 
+                      <Board6P
+                        gameState={gameState}
+                        myColor={myColor}
+                        onMoveToken={handleMoveToken}
+                        onOpenThrowMenu={handleOpenThrowMenu}
+                        onActionComplete={handleBoardActionComplete}
                       />
                     )}
                   </div>
@@ -922,12 +899,12 @@ export default function App() {
 
           {/* Mobile Chat Sliding Drawer Modal */}
           {isMobileChatOpen && (
-            <div 
-              className="mobile-drawer-backdrop" 
+            <div
+              className="mobile-drawer-backdrop"
               onClick={() => setIsMobileChatOpen(false)}
             >
-              <div 
-                className="mobile-drawer-content" 
+              <div
+                className="mobile-drawer-content"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div style={{
@@ -961,7 +938,7 @@ export default function App() {
                   </button>
                 </div>
                 <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
-                  <ChatPanel 
+                  <ChatPanel
                     roomCode={roomCode}
                     socket={socket}
                     chatMessages={chatMessages}
@@ -974,7 +951,7 @@ export default function App() {
 
           {/* On-Board Victory Celebration Banner (Stays visible over board for 5 seconds before stats) */}
           {celebrationActive && !showVictoryStats && (
-            <div 
+            <div
               style={{
                 position: 'fixed',
                 top: '56px',
@@ -1011,14 +988,14 @@ export default function App() {
 
           {/* Victory Modal (shown after 5 seconds of on-board celebration) */}
           {gameState.gameOver && showVictoryStats && (
-            <VictoryModal 
-              winner={gameState.winner} 
+            <VictoryModal
+              winner={gameState.winner}
               players={gameState.players}
               colors={gameState.colors}
               teams={gameState.teams}
               finishStep={gameState.finishStep || (gameState.mode === '6P' ? 76 : 56)}
               myColor={myColor}
-              onPlayAgain={handlePlayAgain} 
+              onPlayAgain={handlePlayAgain}
             />
           )}
 
