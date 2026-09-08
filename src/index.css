@@ -713,7 +713,7 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
     min-height: 38px;
     max-height: 38px;
     flex-wrap: nowrap;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .top-bar-title {
