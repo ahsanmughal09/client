@@ -60,8 +60,12 @@ export default function ReactionOverlay({ activeReactions = [] }) {
       const posX = podCenter ? podCenter.x : defaultPos.x;
       const posY = podCenter ? podCenter.y : defaultPos.y;
 
-      // Play audio synthesizer sound effect for this reaction
-      sounds.playReaction(r.reactionId);
+      // Play audio synthesizer sound effect for this reaction safely without blocking UI
+      try {
+        sounds.playReaction(r.reactionId);
+      } catch (err) {
+        console.warn('Audio playback error ignored:', err);
+      }
 
       // Generate 6 particle offsets around origin with precomputed mid values for WebKit compatibility
       const particles = Array.from({ length: 6 }).map((_, idx) => {
@@ -104,8 +108,8 @@ export default function ReactionOverlay({ activeReactions = [] }) {
       position: 'fixed',
       inset: 0,
       pointerEvents: 'none',
-      zIndex: 99999,
-      overflow: 'hidden'
+      zIndex: 999999,
+      overflow: 'visible'
     }}>
       {displayedReactions.map((item) => {
         const mainColorHex = COLOR_HEX[item.fromColor] || '#818CF8';

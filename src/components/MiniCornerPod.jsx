@@ -324,7 +324,7 @@ export default function MiniCornerPod({
                   onClick={(e) => {
                     e.stopPropagation();
                     sounds.playClick();
-                    onSendReaction(r.id);
+                    if (onSendReaction) onSendReaction(r.id);
                     setShowReactMenu(false);
                   }}
                   title={r.label}
