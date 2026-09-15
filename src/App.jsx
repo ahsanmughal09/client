@@ -115,48 +115,10 @@ export default function App() {
 
   useEffect(() => {
     if (gameState?.gameOver) {
-      setCelebrationActive(true);
-      setShowVictoryStats(false);
+      setShowVictoryStats(true);
       sounds.playWinFanfare();
-
-      // Fire festive confetti over the board for 5 seconds
-      const duration = 5 * 1000;
-      const end = Date.now() + duration;
-      const interval = setInterval(() => {
-        confetti({
-          particleCount: 6,
-          angle: 60,
-          spread: 65,
-          origin: { x: 0.15, y: 0.7 }
-        });
-        confetti({
-          particleCount: 6,
-          angle: 120,
-          spread: 65,
-          origin: { x: 0.85, y: 0.7 }
-        });
-        confetti({
-          particleCount: 8,
-          spread: 90,
-          origin: { y: 0.45 }
-        });
-        if (Date.now() >= end) {
-          clearInterval(interval);
-        }
-      }, 250);
-
-      // Transition to full stats leaderboard modal after 5 seconds
-      const timer = setTimeout(() => {
-        setShowVictoryStats(true);
-      }, 5000);
-
-      return () => {
-        clearInterval(interval);
-        clearTimeout(timer);
-      };
     } else {
       setShowVictoryStats(false);
-      setCelebrationActive(false);
     }
   }, [gameState?.gameOver]);
 
@@ -968,45 +930,8 @@ export default function App() {
             </div>
           )}
 
-          {/* On-Board Victory Celebration Banner (Stays visible over board for 5 seconds before stats) */}
-          {celebrationActive && !showVictoryStats && (
-            <div
-              style={{
-                position: 'fixed',
-                top: '56px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                zIndex: 200,
-                background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.96), rgba(202, 138, 4, 0.96))',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                borderRadius: '30px',
-                border: '2px solid #FEF08A',
-                boxShadow: '0 10px 40px rgba(234, 179, 8, 0.6), 0 0 25px rgba(254, 240, 138, 0.8)',
-                padding: '8px 24px',
-                color: '#FFF',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                animation: 'pulse 1s infinite, slideDown 0.3s ease-out',
-                pointerEvents: 'none'
-              }}
-            >
-              <span style={{ fontSize: '1.6rem' }}>🏆</span>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <span style={{ fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', color: '#FFF', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
-                  🎉 {gameState.winner?.toUpperCase()} WINS! 🎉
-                </span>
-                <span style={{ fontSize: '0.72rem', color: '#FEF9C3', fontWeight: 700 }}>
-                  Board celebrating... stats in a moment
-                </span>
-              </div>
-              <span style={{ fontSize: '1.6rem' }}>👑</span>
-            </div>
-          )}
-
-          {/* Victory Modal (shown after 5 seconds of on-board celebration) */}
-          {gameState.gameOver && showVictoryStats && (
+          {/* Victory Modal (Initiates immediately from center of board on game over) */}
+          {gameState.gameOver && (
             <VictoryModal
               winner={gameState.winner}
               players={gameState.players}
