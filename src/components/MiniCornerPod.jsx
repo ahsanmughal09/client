@@ -167,7 +167,7 @@ export default function MiniCornerPod({
     displayDiceVal = isReadyToRoll ? null : ((currentDice !== null && currentDice !== undefined) ? currentDice : (dicePool[selectedRollIndex] || null));
   }
 
-  const showBalance = !gameState?.isHomeDiceSelectionMode && dicePool && dicePool.length > 1;
+  const showBalance = !gameState?.isHomeDiceSelectionMode && dicePool && dicePool.length > 0 && (!canRoll || dicePool.length > 1);
 
   const canAppealLastTurn = gameState?.canAppealLastTurn;
   const lastTurnOffendingColor = gameState?.lastTurnOffendingColor;
@@ -438,6 +438,9 @@ export default function MiniCornerPod({
                 padding: '1px 0'
               }}
             >
+              <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#94A3B8', marginRight: '1px' }}>
+                Bal:
+              </span>
               {dicePool.map((val, idx) => {
                 const isSelected = idx === selectedRollIndex;
                 const isSix = val === 6;
