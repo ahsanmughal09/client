@@ -136,10 +136,53 @@ export default function App() {
 
   useEffect(() => {
     if (gameState?.gameOver) {
-      setShowVictoryStats(true);
+      setCelebrationActive(true);
+      setShowVictoryStats(false);
       sounds.playWinFanfare();
+
+      // Side Confetti Cannons (Fire from left & right sides for 4 seconds over the board)
+      const duration = 4 * 1000;
+      const end = Date.now() + duration;
+
+      const interval = setInterval(() => {
+        // Left side cannon
+        confetti({
+          particleCount: 8,
+          angle: 60,
+          spread: 65,
+          origin: { x: 0, y: 0.65 }
+        });
+        // Right side cannon
+        confetti({
+          particleCount: 8,
+          angle: 120,
+          spread: 65,
+          origin: { x: 1, y: 0.65 }
+        });
+        // Center burst
+        confetti({
+          particleCount: 10,
+          spread: 100,
+          origin: { y: 0.5 }
+        });
+
+        if (Date.now() >= end) {
+          clearInterval(interval);
+        }
+      }, 220);
+
+      // Transition to full stats leaderboard modal after 4 seconds of on-board celebration
+      const timer = setTimeout(() => {
+        setShowVictoryStats(true);
+      }, 4000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timer);
+      };
     } else {
       setShowVictoryStats(false);
+      setCelebrationActive(false);
     }
   }, [gameState?.gameOver]);
 
@@ -1031,8 +1074,59 @@ export default function App() {
             </div>
           )}
 
-          {/* Victory Modal (Initiates immediately from center of board on game over) */}
-          {gameState.gameOver && (
+          {/* On-Board Center Winner Celebration Card (Board stays visible for 4s with side confetti) */}
+          {celebrationActive && !showVictoryStats && (
+            <div
+              style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 500,
+                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                borderRadius: '24px',
+                border: '2px solid #F59E0B',
+                boxShadow: '0 0 50px rgba(245, 158, 11, 0.6), 0 0 30px rgba(254, 240, 138, 0.8)',
+                padding: '24px 36px',
+                color: '#FFF',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                textAlign: 'center',
+                animation: 'winCardCenterPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                pointerEvents: 'none',
+                maxWidth: '90vw'
+              }}
+            >
+              <div style={{ fontSize: '3rem', filter: 'drop-shadow(0 4px 12px rgba(245,158,11,0.8))' }}>
+                👑
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', color: '#2ED573', textShadow: '0 2px 10px rgba(46, 213, 115, 0.5)' }}>
+                🎉 {(() => {
+                  const rawWinner = gameState.winner || '';
+                  if (gameState.players) {
+                    const matchKey = Object.keys(gameState.players).find(c => {
+                      const p = gameState.players[c];
+                      return c.toLowerCase() === rawWinner.toLowerCase() || (p && p.name && p.name.toLowerCase() === rawWinner.toLowerCase());
+                    });
+                    if (matchKey && gameState.players[matchKey]?.name) {
+                      return gameState.players[matchKey].name.toUpperCase();
+                    }
+                  }
+                  return rawWinner.toUpperCase();
+                })()} WINS! 🎉
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#CBD5E1', fontWeight: 700 }}>
+                Match Completed • Preparing Stats...
+              </div>
+            </div>
+          )}
+
+          {/* Victory Modal (shown after 4 seconds of on-board celebration) */}
+          {gameState.gameOver && showVictoryStats && (
             <VictoryModal
               winner={gameState.winner}
               players={gameState.players}
