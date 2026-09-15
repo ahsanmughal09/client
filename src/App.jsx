@@ -85,8 +85,7 @@ export default function App() {
   const [showVictoryStats, setShowVictoryStats] = useState(false);
   const [celebrationActive, setCelebrationActive] = useState(false);
 
-  // Turn Toast Notification State & Ref
-  const [turnToastNotice, setTurnToastNotice] = useState(null);
+  // Turn Audio & Vibration Ref
   const prevActiveColorRef = React.useRef(null);
 
   useEffect(() => {
@@ -95,7 +94,6 @@ export default function App() {
     const currentActive = gameState.activeColor;
     if (currentActive && currentActive !== prevActiveColorRef.current) {
       const isMyTurnNow = currentActive === myColor;
-      const activePlayerName = gameState.players?.[currentActive]?.name || currentActive.toUpperCase();
 
       // 1. Trigger Sound & Haptic Vibration
       if (isMyTurnNow) {
@@ -111,20 +109,7 @@ export default function App() {
         sounds.playTurnChange();
       }
 
-      // 2. Show Turn Pop-in Toast
-      setTurnToastNotice({
-        color: currentActive,
-        isMyTurn: isMyTurnNow,
-        name: activePlayerName
-      });
-
-      const toastTimer = setTimeout(() => {
-        setTurnToastNotice(null);
-      }, 2200);
-
       prevActiveColorRef.current = currentActive;
-
-      return () => clearTimeout(toastTimer);
     }
   }, [gameState?.activeColor, myColor, view]);
 
@@ -560,48 +545,7 @@ export default function App() {
       {/* Extra Turn Notification Banner */}
       <ExtraTurnBanner notice={extraTurnNotice} onClose={() => setExtraTurnNotice(null)} />
 
-      {/* Animated Turn Pop-in Toast Overlay */}
-      {turnToastNotice && (
-        <div
-          className="turn-toast-overlay"
-          style={{
-            position: 'fixed',
-            top: '60px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 250,
-            background: turnToastNotice.isMyTurn
-              ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.96), rgba(16, 185, 129, 0.96))'
-              : `linear-gradient(135deg, ${COLOR_HEX_CHIP[turnToastNotice.color]}E6, #0F172A)`,
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: turnToastNotice.isMyTurn ? '2px solid #86EFAC' : `2px solid ${COLOR_HEX_CHIP[turnToastNotice.color]}`,
-            borderRadius: '24px',
-            padding: '8px 22px',
-            boxShadow: turnToastNotice.isMyTurn
-              ? '0 10px 30px rgba(34, 197, 94, 0.6), 0 0 20px rgba(134, 239, 172, 0.8)'
-              : `0 10px 30px ${COLOR_HEX_CHIP[turnToastNotice.color]}60`,
-            color: '#FFF',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            animation: 'turnToastPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            pointerEvents: 'none'
-          }}
-        >
-          <span style={{ fontSize: '1.4rem' }}>
-            {turnToastNotice.isMyTurn ? '⚡' : '🎲'}
-          </span>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '0.92rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {turnToastNotice.isMyTurn ? "IT'S YOUR TURN!" : `${turnToastNotice.name}'S TURN`}
-            </span>
-            <span style={{ fontSize: '0.7rem', color: turnToastNotice.isMyTurn ? '#DCFCE7' : '#E2E8F0', fontWeight: 700 }}>
-              {turnToastNotice.isMyTurn ? "Roll the dice now!" : `Waiting for ${turnToastNotice.name}...`}
-            </span>
-          </div>
-        </div>
-      )}
+
 
       {/* Custom Alert & Confirm Modal */}
       {modalConfig?.isOpen && (
