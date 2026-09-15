@@ -803,6 +803,13 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
 .mobile-drawer-backdrop {
   position: fixed;
   inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -811,13 +818,16 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
   justify-content: center;
   align-items: flex-end;
   animation: fadeIn 0.2s ease-out;
+  touch-action: none;
+  overflow: hidden;
 }
 
 .mobile-drawer-content {
   width: 100%;
   max-width: 480px;
-  height: 75vh;
-  max-height: 80dvh;
+  height: 70vh;
+  height: 70dvh;
+  max-height: 75dvh;
   background: rgba(15, 23, 42, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px 20px 0 0;
@@ -826,6 +836,8 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
   overflow: hidden;
   box-shadow: 0 -12px 35px rgba(0, 0, 0, 0.8);
   animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 
 /* ==========================================================================

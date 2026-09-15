@@ -27,7 +27,7 @@ export default function ChatPanel({ roomCode, socket, chatMessages }) {
       </div>
 
       {/* Messages List */}
-      <div style={{ flex: 1, padding: '12px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ flex: 1, padding: '12px', overflowY: 'auto', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {chatMessages.map((msg, idx) => (
           <div key={`msg-${idx}`} style={{ fontSize: '0.85rem' }}>
             {msg.sender === 'System' ? (
