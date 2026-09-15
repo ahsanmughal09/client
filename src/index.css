@@ -950,5 +950,23 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
   transform: translateY(0) scale(0.95);
 }
 
+/* Match Room Lobby Responsiveness */
+.match-lobby-card {
+  padding: 32px;
+}
 
+.lobby-player-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
 
+@media (max-width: 640px) {
+  .match-lobby-card {
+    padding: 20px 14px;
+  }
+
+  .lobby-player-grid {
+    grid-template-columns: 1fr;
+  }
+}
