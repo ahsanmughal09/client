@@ -16,7 +16,8 @@ import ReactionPickerModal from './components/ReactionPickerModal';
 import ExtraTurnBanner from './components/ExtraTurnBanner';
 import ConfirmModal from './components/ConfirmModal';
 import confetti from 'canvas-confetti';
-import { MessageSquare, X } from 'lucide-react';
+import { MessageSquare, X, Bot } from 'lucide-react';
+import { getSmartAutoMove } from './utils/smartAutoPlayer';
 
 const COLOR_HEX_CHIP = {
   red: '#FF4757',
@@ -80,6 +81,26 @@ export default function App() {
 
   // Custom Modal State (replaces native alert and confirm)
   const [modalConfig, setModalConfig] = useState(null);
+
+  // Smart Auto Play Mode State
+  const [isAutoMode, setIsAutoMode] = useState(() => {
+    try {
+      return localStorage.getItem('ludo_auto_mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleAutoMode = () => {
+    sounds.playClick();
+    setIsAutoMode((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('ludo_auto_mode', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   // Victory Celebration State (5-second on-board celebration before full stats modal)
   const [showVictoryStats, setShowVictoryStats] = useState(false);
@@ -536,6 +557,68 @@ export default function App() {
     }
   }, [isMobileChatOpen]);
 
+  // Auto-enable Auto Mode if player fails to act within the turn time limit (30s timeout)
+  useEffect(() => {
+    if (view !== 'game' || !gameState || gameState.gameOver || gameState.appealState?.inDemo) return;
+
+    const isMyTurn = (gameState.activeColor === myColor);
+    if (isMyTurn && timeLeft === 0 && !isAutoMode) {
+      setIsAutoMode(true);
+      try {
+        localStorage.setItem('ludo_auto_mode', 'true');
+      } catch {}
+    }
+  }, [timeLeft, gameState?.activeColor, myColor, view, isAutoMode, gameState?.gameOver, gameState?.appealState?.inDemo]);
+
+  // Smart Auto Play Loop for active turns
+  const autoPlayTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (!isAutoMode || view !== 'game' || !gameState || gameState.gameOver || gameState.appealState?.inDemo) {
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
+      return;
+    }
+
+    const isMyTurn = (gameState.activeColor === myColor);
+    if (!isMyTurn) {
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
+      return;
+    }
+
+    // Clear previous pending timers
+    if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
+
+    autoPlayTimerRef.current = setTimeout(() => {
+      // 1. Auto Roll Dice if ready to roll
+      if (gameState.canRoll) {
+        handleRollDice(0);
+        return;
+      }
+
+      // 2. Auto Move Token (Smart Evaluator) if moves available
+      if (gameState.dicePool && gameState.dicePool.length > 0) {
+        const smartMove = getSmartAutoMove(gameState, myColor);
+        if (smartMove) {
+          handleMoveToken(smartMove.tokenIndex, smartMove.rollIndex);
+        }
+      }
+    }, 600);
+
+    return () => {
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
+    };
+  }, [
+    isAutoMode,
+    view,
+    gameState?.activeColor,
+    gameState?.canRoll,
+    gameState?.dicePool?.length,
+    gameState?.selectedRollIndex,
+    gameState?.gameOver,
+    gameState?.appealState?.inDemo,
+    myColor
+  ]);
+
   const isHost = slots[myColor]?.isHost;
   const isMyTurn = gameState && gameState.activeColor === myColor;
 
@@ -667,6 +750,24 @@ export default function App() {
                   <span>{gameState.appealState.demoTimeLeft}s</span>
                 </div>
               )}
+
+              {/* Smart Auto Play Toggle Button */}
+              <button
+                onClick={toggleAutoMode}
+                title={isAutoMode ? 'Disable Smart Auto Play' : 'Enable Smart Auto Play'}
+                className="top-bar-action-btn"
+                style={{
+                  background: isAutoMode
+                    ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+                    : 'rgba(30, 41, 59, 0.7)',
+                  border: isAutoMode ? '1.5px solid #6EE7B7' : '1px solid rgba(255, 255, 255, 0.2)',
+                  boxShadow: isAutoMode ? '0 0 14px rgba(16, 185, 129, 0.8)' : 'none',
+                  color: '#FFF'
+                }}
+              >
+                <Bot size={14} color={isAutoMode ? '#6EE7B7' : '#94A3B8'} />
+                <span>{isAutoMode ? 'AUTO ON' : 'AUTO'}</span>
+              </button>
 
               {/* Chat Trigger Button with Message Popover Pointer */}
               <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
