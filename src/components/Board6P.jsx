@@ -28,13 +28,76 @@ function getOccupantOffset(occupantIndex, totalOccupants) {
     ];
     return { ...offsets[occupantIndex % 3], r: 9 };
   }
-  const offsets = [
-    { dx: -10, dy: -10 },
-    { dx: 10, dy: -10 },
-    { dx: -10, dy: 10 },
-    { dx: 10, dy: 10 }
+  if (totalOccupants === 4) {
+    const offsets = [
+      { dx: -10, dy: -10 },
+      { dx: 10, dy: -10 },
+      { dx: -10, dy: 10 },
+      { dx: 10, dy: 10 }
+    ];
+    return { ...offsets[occupantIndex % 4], r: 8.5 };
+  }
+  if (totalOccupants === 5) {
+    const offsets = [
+      { dx: -11, dy: -11 },
+      { dx: 11, dy: -11 },
+      { dx: 0, dy: 0 },
+      { dx: -11, dy: 11 },
+      { dx: 11, dy: 11 }
+    ];
+    return { ...offsets[occupantIndex % 5], r: 7.5 };
+  }
+  if (totalOccupants === 6) {
+    const offsets = [
+      { dx: -12, dy: -9 },
+      { dx: 0, dy: -9 },
+      { dx: 12, dy: -9 },
+      { dx: -12, dy: 9 },
+      { dx: 0, dy: 9 },
+      { dx: 12, dy: 9 }
+    ];
+    return { ...offsets[occupantIndex % 6], r: 7.0 };
+  }
+  if (totalOccupants === 7) {
+    const offsets = [
+      { dx: -12, dy: -12 },
+      { dx: 0, dy: -12 },
+      { dx: 12, dy: -12 },
+      { dx: 0, dy: 0 },
+      { dx: -12, dy: 12 },
+      { dx: 0, dy: 12 },
+      { dx: 12, dy: 12 }
+    ];
+    return { ...offsets[occupantIndex % 7], r: 6.5 };
+  }
+  if (totalOccupants === 8) {
+    const offsets = [
+      { dx: -12, dy: -12 },
+      { dx: 0, dy: -12 },
+      { dx: 12, dy: -12 },
+      { dx: -12, dy: 0 },
+      { dx: 12, dy: 0 },
+      { dx: -12, dy: 12 },
+      { dx: 0, dy: 12 },
+      { dx: 12, dy: 12 }
+    ];
+    return { ...offsets[occupantIndex % 8], r: 6.2 };
+  }
+
+  const gridPositions = [
+    { dx: -13, dy: -13 }, { dx: 0, dy: -13 }, { dx: 13, dy: -13 },
+    { dx: -13, dy: 0 },   { dx: 0, dy: 0 },   { dx: 13, dy: 0 },
+    { dx: -13, dy: 13 },  { dx: 0, dy: 13 },  { dx: 13, dy: 13 }
   ];
-  return { ...offsets[occupantIndex % 4], r: 8.5 };
+
+  const pos = gridPositions[occupantIndex % 9];
+  const layer = Math.floor(occupantIndex / 9);
+
+  return {
+    dx: pos.dx + layer * 3,
+    dy: pos.dy + layer * 3,
+    r: Math.max(4.5, 6.0 - layer * 0.8)
+  };
 }
 
 function canTokenMoveWithRoll6P(step, roll, killRequired, hasKill, color, gameState) {
@@ -908,6 +971,24 @@ export default function Board6P({ gameState, myColor, timeLeft, onMoveToken, onO
                 opacity="0.5" 
                 className="token-specular"
               />
+            </g>
+          );
+        })}
+
+        {/* Multi-Token Cell Count Badges for cells with 2+ tokens */}
+        {Object.keys(cellOccupants).map(cellKey => {
+          const count = cellOccupants[cellKey].length;
+          if (count <= 1 || cellKey.startsWith('yard-')) return null;
+
+          const sampleTok = allRenderTokens.find(t => t.cellKey === cellKey);
+          if (!sampleTok) return null;
+
+          return (
+            <g key={`cell-badge-${cellKey}`} transform={`translate(${sampleTok.baseCx}, ${sampleTok.baseCy})`} style={{ pointerEvents: 'none' }}>
+              <circle r="9.5" fill="#0F172A" stroke="#6366F1" strokeWidth="1.5" opacity="0.94" />
+              <text y="3.5" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="900">
+                {count}
+              </text>
             </g>
           );
         })}
