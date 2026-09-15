@@ -523,6 +523,33 @@ export default function App() {
     });
   };
 
+  // Intercept Browser Back Button and Page Unload to prevent accidental leaving
+  useEffect(() => {
+    if (view !== 'lobby' && view !== 'game') return;
+
+    // Push entry to browser history stack so Back button triggers popstate instead of exiting app
+    window.history.pushState({ inGame: true }, '', window.location.href);
+
+    const handlePopState = () => {
+      // Re-push history entry so user remains on current page if they cancel
+      window.history.pushState({ inGame: true }, '', window.location.href);
+      handleLeaveRoom();
+    };
+
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [view, roomCode, myColor]);
+
   const isHost = slots[myColor]?.isHost;
   const isMyTurn = gameState && gameState.activeColor === myColor;
 
