@@ -947,7 +947,13 @@ export default function App() {
               );
             };
 
-            if (settings?.gameType === 'snakes_and_ladders' || gameState?.gameType === 'snakes_and_ladders') {
+            const isSnakesGame = 
+              settings?.gameType === 'snakes_and_ladders' || 
+              gameState?.gameType === 'snakes_and_ladders' ||
+              gameState?.snakes !== undefined ||
+              gameState?.ladders !== undefined;
+
+            if (isSnakesGame) {
               return (
                 <BoardSnakesLadders
                   gameState={gameState}

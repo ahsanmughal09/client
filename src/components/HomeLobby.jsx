@@ -156,18 +156,36 @@ export default function HomeLobby({ onCreateRoom, onJoinRoom, showAlert }) {
                 <button 
                   type="button" 
                   onClick={() => handleGameTypeChange('ludo')}
-                  className={`glass-btn ${gameType === 'ludo' ? 'primary' : ''}`}
-                  style={{ justifyContent: 'center', padding: '12px', fontWeight: 700 }}
+                  className="glass-btn"
+                  style={{
+                    justifyContent: 'center',
+                    padding: '14px 10px',
+                    fontWeight: 800,
+                    fontSize: '0.95rem',
+                    background: gameType === 'ludo' ? 'linear-gradient(135deg, #6366F1, #4F46E5)' : 'rgba(30, 41, 59, 0.6)',
+                    border: gameType === 'ludo' ? '2px solid #818CF8' : '1px solid rgba(255, 255, 255, 0.15)',
+                    boxShadow: gameType === 'ludo' ? '0 0 16px rgba(99, 102, 241, 0.5)' : 'none',
+                    color: '#FFF'
+                  }}
                 >
-                  🎲 Ludo Arena
+                  🎲 Ludo Arena {gameType === 'ludo' ? '✓' : ''}
                 </button>
                 <button 
                   type="button" 
                   onClick={() => handleGameTypeChange('snakes_and_ladders')}
-                  className={`glass-btn ${gameType === 'snakes_and_ladders' ? 'primary' : ''}`}
-                  style={{ justifyContent: 'center', padding: '12px', fontWeight: 700 }}
+                  className="glass-btn"
+                  style={{
+                    justifyContent: 'center',
+                    padding: '14px 10px',
+                    fontWeight: 800,
+                    fontSize: '0.95rem',
+                    background: gameType === 'snakes_and_ladders' ? 'linear-gradient(135deg, #10B981, #059669)' : 'rgba(30, 41, 59, 0.6)',
+                    border: gameType === 'snakes_and_ladders' ? '2px solid #34D399' : '1px solid rgba(255, 255, 255, 0.15)',
+                    boxShadow: gameType === 'snakes_and_ladders' ? '0 0 16px rgba(16, 185, 129, 0.5)' : 'none',
+                    color: '#FFF'
+                  }}
                 >
-                  🐍 Snakes & Ladders
+                  🐍 Snakes & Ladders {gameType === 'snakes_and_ladders' ? '✓' : ''}
                 </button>
               </div>
             </div>
