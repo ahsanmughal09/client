@@ -559,39 +559,10 @@ export default function BoardSnakesLadders({
   };
 
   return (
-    <div
-      style={{
-        width: '100vw',
-        height: '100vh',
-        background: 'radial-gradient(circle at center, #1E1B4B 0%, #0F172A 70%, #020617 100%)',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '12px',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-        gap: '16px'
-      }}
-    >
+    <div className="snakes-ladders-wrapper">
 
-      {/* Center Max-Height 10x10 Board Container */}
-      <div
-        style={{
-          position: 'relative',
-          height: 'min(94vh, 94vw)',
-          width: 'min(94vh, 94vw)',
-          maxWidth: '92vh',
-          maxHeight: '92vh',
-          aspectRatio: '1 / 1',
-          background: 'rgba(15, 23, 42, 0.95)',
-          borderRadius: '20px',
-          padding: '8px',
-          border: '3px solid rgba(255, 255, 255, 0.15)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(99, 102, 241, 0.2)',
-          boxSizing: 'border-box'
-        }}
-      >
+      {/* Center 10x10 Board Container */}
+      <div className="snakes-ladders-board">
         {/* Inner Board Area (Precisely bounds Grid, SVG Overlay, and Player Tokens) */}
         <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '12px', overflow: 'hidden' }}>
           
@@ -618,24 +589,8 @@ export default function BoardSnakesLadders({
         </div>
       </div>
 
-      {/* Right Column Side Panel (Player List, Dice Roller, Turn Info) */}
-      <div
-        className="glass-panel"
-        style={{
-          width: '320px',
-          height: 'min(94vh, 94vw)',
-          maxHeight: '92vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          padding: '20px',
-          borderRadius: '20px',
-          boxSizing: 'border-box',
-          background: 'rgba(15, 23, 42, 0.75)',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
-          backdropFilter: 'blur(16px)'
-        }}
-      >
+      {/* Side / Bottom Control Panel (Player List, Dice Roller, Turn Info) */}
+      <div className="glass-panel snakes-ladders-panel">
 
         {/* Top Header: Current Turn & Timer */}
         <div>
