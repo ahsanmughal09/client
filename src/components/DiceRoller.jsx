@@ -94,7 +94,10 @@ export default function DiceRoller({
   isHomeDiceSelectionMode = false,
   timeLeft = null,
   maxTime = 30,
-  compact = false
+  compact = false,
+  hideBalance = false,
+  hideHelperText = false,
+  diceSize: customDiceSize = null
 }) {
   const [rolling, setRolling] = useState(false);
   const [showingSixDelay, setShowingSixDelay] = useState(false);
@@ -156,9 +159,9 @@ export default function DiceRoller({
     }
   }
 
-  const showBalance = !isHomeDiceSelectionMode && !allTokensInHome && dicePool && dicePool.length > 0 && (!canRoll || dicePool.length > 1);
+  const showBalance = !hideBalance && !isHomeDiceSelectionMode && !allTokensInHome && dicePool && dicePool.length > 0 && (!canRoll || dicePool.length > 1);
 
-  const diceSize = compact ? 42 : 68;
+  const diceSize = customDiceSize || (compact ? 42 : 68);
 
   if (compact) {
     return (
@@ -506,25 +509,27 @@ export default function DiceRoller({
       </div>
 
       {/* Helper text */}
-      <div style={{ fontSize: '0.85rem', fontWeight: 600, textAlign: 'center' }}>
-        {isMyTurn ? (
-          canRoll ? (
-            <span style={{ color: '#2ED573', animation: 'pulse 1s infinite' }}>
-              {dicePool.length > 0 ? '🎲 Roll Again!' : '⚡ Tap Dice to Roll!'}
-            </span>
-          ) : (dicePool && dicePool.length > 0) ? (
-            <span style={{ color: '#FFA502' }}>
-              {(allTokensInHome || isHomeDiceSelectionMode)
-                ? '🏠 Select a dice then tap home token!'
-                : '👉 Tap glowing token on board!'}
-            </span>
+      {!hideHelperText && (
+        <div style={{ fontSize: '0.85rem', fontWeight: 600, textAlign: 'center' }}>
+          {isMyTurn ? (
+            canRoll ? (
+              <span style={{ color: '#2ED573', animation: 'pulse 1s infinite' }}>
+                {dicePool.length > 0 ? '🎲 Roll Again!' : '⚡ Tap Dice to Roll!'}
+              </span>
+            ) : (dicePool && dicePool.length > 0) ? (
+              <span style={{ color: '#FFA502' }}>
+                {(allTokensInHome || isHomeDiceSelectionMode)
+                  ? '🏠 Select a dice then tap home token!'
+                  : '👉 Tap glowing token on board!'}
+              </span>
+            ) : (
+              <span style={{ color: '#94A3B8' }}>No valid moves.</span>
+            )
           ) : (
-            <span style={{ color: '#94A3B8' }}>No valid moves.</span>
-          )
-        ) : (
-          <span style={{ color: '#94A3B8' }}>Waiting for {activeColor?.toUpperCase()}...</span>
-        )}
-      </div>
+            <span style={{ color: '#94A3B8' }}>Waiting for {activeColor?.toUpperCase()}...</span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

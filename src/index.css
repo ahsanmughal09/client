@@ -1002,6 +1002,7 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
 .snakes-ladders-wrapper {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: radial-gradient(circle at center, #1E1B4B 0%, #0F172A 70%, #020617 100%);
   display: flex;
   flex-direction: row;
@@ -1045,33 +1046,53 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
   overflow-y: auto;
 }
 
+.mobile-only-sl {
+  display: none !important;
+}
+
+.desktop-only-sl {
+  display: flex !important;
+}
+
 @media (max-width: 768px) {
+  .mobile-only-sl {
+    display: flex !important;
+  }
+
+  .desktop-only-sl {
+    display: none !important;
+  }
+
   .snakes-ladders-wrapper {
     flex-direction: column;
-    height: auto;
-    min-height: 100vh;
-    padding: 10px 8px 24px 8px;
-    overflow-y: auto;
-    justify-content: flex-start;
-    gap: 12px;
+    height: 100vh;
+    height: 100dvh;
+    padding: 6px 8px;
+    overflow: hidden;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
   }
 
   .snakes-ladders-board {
-    width: min(96vw, 480px);
-    height: min(96vw, 480px);
+    width: min(96vw, calc(100dvh - 150px));
+    height: min(96vw, calc(100dvh - 150px));
     max-width: 96vw;
-    max-height: 96vw;
+    max-height: calc(100dvh - 150px);
     padding: 4px;
-    border-radius: 14px;
+    border-radius: 12px;
+    margin: 0 auto;
+    flex-shrink: 1;
   }
 
   .snakes-ladders-panel {
-    width: min(96vw, 480px);
+    width: 100%;
     height: auto;
     max-height: none;
-    padding: 16px;
-    gap: 12px;
-    border-radius: 16px;
+    padding: 8px 12px;
+    gap: 8px;
+    border-radius: 12px;
+    overflow-y: visible;
   }
 }
 
