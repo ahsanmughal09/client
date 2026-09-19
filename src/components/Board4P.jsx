@@ -301,8 +301,7 @@ function canTokenMoveWithRoll4P(step, roll, killRequired, hasKill, color, gameSt
 }
 
 function canConsumeAllDice4P(currentTokens, remainingDicePool, hasKill, killRequired, color, gameState) {
-  if (remainingDicePool.length === 0) return true;
-  if (currentTokens && currentTokens.every(s => s === 56)) return true;
+  if (!remainingDicePool || remainingDicePool.length === 0) return true;
 
   for (let rIdx = 0; rIdx < remainingDicePool.length; rIdx++) {
     const roll = remainingDicePool[rIdx];
