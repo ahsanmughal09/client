@@ -476,32 +476,6 @@ export default function Board4P({
               delete next[key];
               return next;
             });
-
-            // STAGE 3: Animate offending player's other token to postMove location
-            if (postMoveTokens && postMoveTokens.length > 0) {
-              postMoveTokens.forEach((pmTarget, pmIdx) => {
-                if (pmIdx !== tokenIndex && pmTarget >= 0) {
-                  const pmKey = `${color}-${pmIdx}`;
-                  let pmCurrent = 0;
-                  const pmInterval = setInterval(() => {
-                    pmCurrent += 2;
-                    if (pmCurrent > pmTarget) pmCurrent = pmTarget;
-                    sounds.playTokenStep();
-                    setDisplaySteps(prev => ({ ...prev, [pmKey]: pmCurrent }));
-                    if (pmCurrent >= pmTarget) {
-                      clearInterval(pmInterval);
-                      setTimeout(() => {
-                        setDisplaySteps(prev => {
-                          const next = { ...prev };
-                          delete next[pmKey];
-                          return next;
-                        });
-                      }, 100);
-                    }
-                  }, 60);
-                }
-              });
-            }
           }
         }, 40);
       };
