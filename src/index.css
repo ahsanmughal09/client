@@ -1031,13 +1031,13 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
 }
 
 .snakes-ladders-panel {
-  width: 320px;
+  width: 290px;
   height: min(94vh, 94vw);
   max-height: 92vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
+  padding: 18px;
   border-radius: 20px;
   box-sizing: border-box;
   background: rgba(15, 23, 42, 0.75);
@@ -1067,32 +1067,22 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
     flex-direction: column;
     height: 100vh;
     height: 100dvh;
-    padding: 6px 8px;
+    padding: 4px 6px;
     overflow: hidden;
     justify-content: space-between;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
   }
 
   .snakes-ladders-board {
-    width: min(96vw, calc(100dvh - 150px));
-    height: min(96vw, calc(100dvh - 150px));
+    width: min(96vw, calc(100dvh - 160px));
+    height: min(96vw, calc(100dvh - 160px));
     max-width: 96vw;
-    max-height: calc(100dvh - 150px);
+    max-height: calc(100dvh - 160px);
     padding: 4px;
     border-radius: 12px;
     margin: 0 auto;
     flex-shrink: 1;
-  }
-
-  .snakes-ladders-panel {
-    width: 100%;
-    height: auto;
-    max-height: none;
-    padding: 8px 12px;
-    gap: 8px;
-    border-radius: 12px;
-    overflow-y: visible;
   }
 }
 

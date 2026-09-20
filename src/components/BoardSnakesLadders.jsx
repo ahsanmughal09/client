@@ -82,7 +82,7 @@ export default function BoardSnakesLadders({
     return () => clearAllAnimationTimeouts();
   }, []);
 
-  // Discrete Step-by-Step Box Hopping -> Pause on Climb/Bite Box -> Smooth Slide Along Ladder/Snake
+  // Continuous Smooth Box-by-Box Sliding -> Pause on Climb/Bite Box -> Smooth Slide Along Ladder/Snake
   useEffect(() => {
     if (!gameState || !gameState.players) return;
 
@@ -114,33 +114,27 @@ export default function BoardSnakesLadders({
       setStepState(null);
       setSlidingColor(null);
 
-      let cumulativeDelay = 40; // initial delay before first hop
+      const STEP_DURATION = 140; // 140ms per box smooth linear slide
+      let cumulativeDelay = 20;
 
-      // Schedule discrete box hops: 160ms hop + 200ms landing pause = 360ms per box step
+      // Schedule continuous smooth sliding across boxes
       stepTiles.forEach((tile) => {
-        // Hop phase: Lift up & move position to target tile over 160ms
-        const hopTimeout = setTimeout(() => {
+        const stepTimeout = setTimeout(() => {
           setTokenPositions(prev => ({ ...prev, [color]: tile }));
           setStepState({ color, isMoving: true });
           if (sounds.playMove) sounds.playMove();
         }, cumulativeDelay);
-        animationTimeoutIdsRef.current.push(hopTimeout);
+        animationTimeoutIdsRef.current.push(stepTimeout);
 
-        // Landing phase: Arrived at tile, snap down, set position transition to 'none' & rest for 200ms
-        const landTimeout = setTimeout(() => {
-          setStepState({ color, isMoving: false });
-        }, cumulativeDelay + 160);
-        animationTimeoutIdsRef.current.push(landTimeout);
-
-        cumulativeDelay += 360;
+        cumulativeDelay += STEP_DURATION;
       });
 
-      // Schedule actions after box-by-box steps complete
+      // Schedule ladder / snake slide or completion after box sliding ends
       const finishWalkingTimeout = setTimeout(() => {
         setStepState(null);
 
         if (isLadder || isSnake) {
-          // Pause 400ms on the climb/bite box so player clearly sees landing on base/head
+          // Pause 300ms on climb/bite box so landing is clear
           const slidePauseTimeout = setTimeout(() => {
             setSlidingColor(color);
             if (isLadder && sounds.playLadderClimb) sounds.playLadderClimb();
@@ -156,13 +150,13 @@ export default function BoardSnakesLadders({
             }, 750);
 
             animationTimeoutIdsRef.current.push(finishSlideTimeout);
-          }, 400);
+          }, 300);
 
           animationTimeoutIdsRef.current.push(slidePauseTimeout);
         } else {
           isAnimatingRef.current = false;
         }
-      }, cumulativeDelay);
+      }, cumulativeDelay + 30);
 
       animationTimeoutIdsRef.current.push(finishWalkingTimeout);
     } else {
@@ -484,27 +478,24 @@ export default function BoardSnakesLadders({
       const isCurrentActive = activeColor === color;
       const isMyChip = color === myColor;
 
-      const isHopping = stepState?.color === color && stepState.isMoving;
-      const isLanding = stepState?.color === color && !stepState.isMoving;
+      const isStepping = stepState?.color === color;
       const isSliding = slidingColor === color;
 
       let transitionStyle = 'left 0.3s ease-out, top 0.3s ease-out, transform 0.3s ease-out';
-      let transformStyle = isCurrentActive ? 'translate(-50%, -50%) scale(1.05)' : 'translate(-50%, -50%) scale(1.0)';
+      let transformStyle = isCurrentActive ? 'translate(-50%, -50%) scale(1.08)' : 'translate(-50%, -50%) scale(1.0)';
 
-      if (isHopping) {
-        transitionStyle = 'left 0.16s cubic-bezier(0.25, 1, 0.5, 1), top 0.16s cubic-bezier(0.25, 1, 0.5, 1), transform 0.16s ease-out';
-        transformStyle = 'translate(-50%, -85%) scale(1.35)';
-      } else if (isLanding) {
-        transitionStyle = 'transform 0.1s ease-in';
-        transformStyle = 'translate(-50%, -50%) scale(1.0)';
+      if (isStepping) {
+        transitionStyle = 'left 0.14s linear, top 0.14s linear';
+        transformStyle = 'translate(-50%, -50%) scale(1.08)';
       } else if (isSliding) {
         transitionStyle = 'left 0.75s cubic-bezier(0.25, 1, 0.5, 1), top 0.75s cubic-bezier(0.25, 1, 0.5, 1)';
-        transformStyle = 'translate(-50%, -50%) scale(1.1)';
+        transformStyle = 'translate(-50%, -50%) scale(1.15)';
       }
 
       return (
         <div
           key={`chip_${color}`}
+          data-player-color={color}
           onClick={() => {
             if (isMyTurn && !canRoll && validMoves.length > 0 && isMyChip) {
               sounds.playClick();
@@ -578,265 +569,128 @@ export default function BoardSnakesLadders({
     });
   };
 
+  const opponentColors = ['red', 'yellow', 'green', 'blue'].filter(c => c !== myColor);
+  const myPlayer = players[myColor] || players[activeColor] || {};
+  const myPosition = myPlayer.position || 0;
+
   return (
     <div className="snakes-ladders-wrapper">
 
-      {/* MOBILE-ONLY TOP BAR (Turn Info + Timer + Actions) */}
+      {/* MOBILE TOP DOCK: Opponents Cards & Active Turn Status */}
       <div
-        className="mobile-only-sl"
+        className="mobile-only-sl mobile-top-dock"
         style={{
           width: '100%',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
+          gap: '4px',
           background: 'rgba(15, 23, 42, 0.85)',
-          border: `1.5px solid ${PLAYER_COLORS[activeColor]?.hex || '#6366F1'}`,
-          borderRadius: '12px',
+          border: `1.5px solid ${PLAYER_COLORS[activeColor]?.hex || 'rgba(255, 255, 255, 0.15)'}`,
+          borderRadius: '14px',
           padding: '6px 10px',
           boxSizing: 'border-box',
           backdropFilter: 'blur(12px)',
           flexShrink: 0
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div
-            style={{
-              width: '12px',
-              height: '12px',
-              borderRadius: '50%',
-              background: PLAYER_COLORS[activeColor]?.hex || '#FFF',
-              boxShadow: `0 0 8px ${PLAYER_COLORS[activeColor]?.hex}`
-            }}
-          />
-          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#FFF' }}>
-            {slots[activeColor]?.name || activeColor.toUpperCase()}
-            {isMyTurn && <span style={{ fontSize: '0.65rem', background: '#6366F1', marginLeft: '4px', padding: '1px 5px', borderRadius: '6px' }}>YOU</span>}
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 900, color: timeLeft <= 5 ? '#F87171' : '#FBBF24' }}>
-            ⏱️ {timeLeft}s
-          </span>
-
-          {onOpenReactionPicker && (
-            <button
-              onClick={onOpenReactionPicker}
-              style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '8px', padding: '4px 8px', fontSize: '0.85rem', cursor: 'pointer', color: '#FFF' }}
-            >
-              😍
-            </button>
-          )}
-          {onToggleMobileChat && (
-            <button
-              onClick={onToggleMobileChat}
-              style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '8px', padding: '4px 8px', cursor: 'pointer', color: '#FFF', display: 'flex', alignItems: 'center' }}
-            >
-              <MessageSquare size={14} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* MOBILE-ONLY PLAYERS PROGRESS ROW */}
-      <div
-        className="mobile-only-sl"
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          overflowX: 'auto',
-          padding: '2px 0',
-          flexShrink: 0,
-          scrollbarWidth: 'none'
-        }}
-      >
-        {['red', 'yellow', 'green', 'blue'].map(c => {
-          const p = players[c];
-          const slot = slots[c];
-          if (!slot || !slot.connected) return null;
-          const pos = p ? p.position : 0;
-          const isTurn = activeColor === c;
-
-          return (
+        {/* Active Turn Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div
-              key={`m_progress_${c}`}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                padding: '4px 8px',
-                borderRadius: '20px',
-                background: isTurn ? 'rgba(99, 102, 241, 0.3)' : 'rgba(30, 41, 59, 0.6)',
-                border: `1px solid ${isTurn ? PLAYER_COLORS[c].hex : 'rgba(255,255,255,0.1)'}`,
-                whiteSpace: 'nowrap',
-                flexShrink: 0
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                background: PLAYER_COLORS[activeColor]?.hex || '#FFF',
+                boxShadow: `0 0 8px ${PLAYER_COLORS[activeColor]?.hex}`
               }}
-            >
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: PLAYER_COLORS[c].hex }} />
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#FFF' }}>
-                {slot.name}
-              </span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 900, color: pos > 0 ? '#4ADE80' : '#94A3B8' }}>
-                #{pos}
-              </span>
-              {onOpenThrowMenu && c !== myColor && (
-                <button
-                  onClick={() => onOpenThrowMenu(c, slot.name)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem', padding: 0 }}
-                >
-                  🎯
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Center 10x10 Board Container */}
-      <div className="snakes-ladders-board">
-        {/* Inner Board Area (Precisely bounds Grid, SVG Overlay, and Player Tokens) */}
-        <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '12px', overflow: 'hidden' }}>
-          
-          {/* 10x10 CSS Grid */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(10, 1fr)',
-              gridTemplateRows: 'repeat(10, 1fr)',
-              width: '100%',
-              height: '100%',
-              gap: '2px',
-              boxSizing: 'border-box'
-            }}
-          >
-            {cells}
+            />
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#FFF' }}>
+              {slots[activeColor]?.name || activeColor.toUpperCase()}'s Turn
+              {isMyTurn && <span style={{ fontSize: '0.62rem', background: '#6366F1', marginLeft: '4px', padding: '1px 5px', borderRadius: '6px' }}>YOU</span>}
+            </span>
           </div>
 
-          {/* SVG Snakes & Ladders Overlay */}
-          {renderSVGOverlay()}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 900, color: timeLeft <= 5 ? '#F87171' : '#FBBF24' }}>
+              ⏱️ {timeLeft}s
+            </span>
+          </div>
+        </div>
 
-          {/* Player Chips */}
-          {renderPlayerTokens()}
+        {/* Opponent Cards Row */}
+        <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', width: '100%', scrollbarWidth: 'none', paddingTop: '2px' }}>
+          {opponentColors.map(c => {
+            const p = players[c];
+            const slot = slots[c];
+            if (!slot || !slot.connected) return null;
+            const pos = p ? p.position : 0;
+            const isTurn = activeColor === c;
+
+            return (
+              <div
+                key={`m_opp_${c}`}
+                data-player-color={c}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 8px',
+                  borderRadius: '14px',
+                  background: isTurn ? 'rgba(99, 102, 241, 0.35)' : 'rgba(30, 41, 59, 0.75)',
+                  border: `1.5px solid ${isTurn ? PLAYER_COLORS[c].hex : 'rgba(255,255,255,0.12)'}`,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+              >
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: PLAYER_COLORS[c].hex }} />
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#FFF' }}>
+                  {slot.name}
+                </span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 900, color: pos > 0 ? '#4ADE80' : '#94A3B8' }}>
+                  #{pos}
+                </span>
+                {onOpenThrowMenu && (
+                  <button
+                    onClick={() => onOpenThrowMenu(c, slot.name)}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.15)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      padding: '2px 5px',
+                      marginLeft: '2px'
+                    }}
+                    title={`Throw item at ${slot.name}`}
+                  >
+                    🎯
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* MOBILE-ONLY BOTTOM ACTION DOCK */}
-      <div
-        className="mobile-only-sl"
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          background: 'rgba(15, 23, 42, 0.85)',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
-          borderRadius: '14px',
-          padding: '8px 12px',
-          boxSizing: 'border-box',
-          backdropFilter: 'blur(12px)',
-          flexShrink: 0,
-          gap: '10px'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <DiceRoller
-            currentDice={currentDice}
-            dicePool={[]}
-            canRoll={canRoll}
-            isMyTurn={isMyTurn}
-            activeColor={activeColor}
-            onRollDice={onRollDice}
-            diceCount={1}
-            diceSize={46}
-            hideBalance={true}
-            hideHelperText={true}
-          />
-        </div>
-
-        <div style={{ flex: 1 }}>
-          {isMyTurn && canRoll && !gameOver && (
-            <button
-              onClick={() => {
-                sounds.playDiceRoll();
-                onRollDice(0);
-              }}
-              className="glass-btn primary"
-              style={{
-                width: '100%',
-                justifyContent: 'center',
-                padding: '10px 14px',
-                fontSize: '0.95rem',
-                fontWeight: 900,
-                background: 'linear-gradient(135deg, #10B981, #059669)',
-                border: 'none',
-                boxShadow: '0 0 15px rgba(16, 185, 129, 0.5)',
-                cursor: 'pointer',
-                borderRadius: '10px'
-              }}
-            >
-              🎲 ROLL DICE
-            </button>
-          )}
-
-          {isMyTurn && !canRoll && validMoves.length > 0 && !gameOver && (
-            <button
-              onClick={() => {
-                sounds.playClick();
-                onMoveToken(0);
-              }}
-              className="glass-btn primary"
-              style={{
-                width: '100%',
-                justifyContent: 'center',
-                padding: '10px 14px',
-                fontSize: '0.95rem',
-                fontWeight: 900,
-                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                border: 'none',
-                boxShadow: '0 0 15px rgba(99, 102, 241, 0.5)',
-                cursor: 'pointer',
-                borderRadius: '10px'
-              }}
-            >
-              <Zap size={16} /> STEP FORWARD
-            </button>
-          )}
-
-          {isMyTurn && !canRoll && validMoves.length === 0 && !gameOver && (
-            <div style={{ color: '#F87171', fontSize: '0.75rem', fontWeight: 800, textAlign: 'center' }}>
-              🚫 Exceeds 100 Goal!
-            </div>
-          )}
-
-          {!isMyTurn && (
-            <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem', fontWeight: 700 }}>
-              Waiting for {slots[activeColor]?.name || activeColor}...
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* DESKTOP-ONLY SIDE PANEL */}
+      {/* DESKTOP-ONLY LEFT PANEL: Playing Player Controls & Info */}
       <div className="glass-panel snakes-ladders-panel desktop-only-sl">
-
-        {/* Top Header: Current Turn & Timer */}
         <div>
           <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, background: 'linear-gradient(135deg, #FFF, #4ADE80)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>
-              🐍 SNAKES & LADDERS
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 900, background: 'linear-gradient(135deg, #FFF, #818CF8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>
+              🎮 YOUR CONTROLS
             </h2>
-            <span style={{ fontSize: '0.75rem', color: '#94A3B8', fontWeight: 600 }}>100 Tiles Goal • Free For All</span>
+            <span style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 600 }}>Playing Player Panel</span>
           </div>
 
-          {/* Turn Banner */}
+          {/* Playing Player Card */}
           <div
+            data-player-color={myColor}
             style={{
               background: 'rgba(30, 41, 59, 0.8)',
-              padding: '12px 16px',
+              padding: '12px 14px',
               borderRadius: '14px',
-              border: `2px solid ${PLAYER_COLORS[activeColor]?.hex || '#6366F1'}`,
+              border: `2px solid ${PLAYER_COLORS[myColor]?.hex || '#6366F1'}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -849,83 +703,29 @@ export default function BoardSnakesLadders({
                   width: '16px',
                   height: '16px',
                   borderRadius: '50%',
-                  background: PLAYER_COLORS[activeColor]?.hex || '#FFF',
-                  boxShadow: `0 0 10px ${PLAYER_COLORS[activeColor]?.hex}`
+                  background: PLAYER_COLORS[myColor]?.hex || '#FFF',
+                  boxShadow: `0 0 10px ${PLAYER_COLORS[myColor]?.hex}`
                 }}
               />
               <div>
-                <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>ACTIVE TURN</div>
-                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#FFF' }}>
-                  {slots[activeColor]?.name || activeColor.toUpperCase()}
-                  {isMyTurn && <span style={{ fontSize: '0.7rem', background: '#6366F1', marginLeft: '6px', padding: '1px 6px', borderRadius: '8px' }}>YOU</span>}
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#FFF' }}>
+                  {slots[myColor]?.name || myColor.toUpperCase()}
+                  <span style={{ fontSize: '0.65rem', background: '#6366F1', marginLeft: '6px', padding: '1px 6px', borderRadius: '8px' }}>YOU</span>
                 </div>
+                <div style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 700 }}>Color: {PLAYER_COLORS[myColor]?.name || myColor}</div>
               </div>
             </div>
 
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: 700 }}>TIMER</div>
-              <div style={{ fontSize: '1.2rem', fontWeight: 900, color: timeLeft <= 5 ? '#F87171' : '#FBBF24' }}>
-                ⏱️ {timeLeft}s
+              <div style={{ fontSize: '0.68rem', color: '#94A3B8', fontWeight: 700 }}>POSITION</div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 900, color: (players[myColor]?.position || 0) > 0 ? '#4ADE80' : '#94A3B8' }}>
+                {(players[myColor]?.position || 0) === 0 ? 'Dock (0)' : `Tile #${players[myColor]?.position}`}
               </div>
             </div>
           </div>
 
-          {/* Connected Players Progress List */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Players Progress</span>
-            {['red', 'yellow', 'green', 'blue'].map(c => {
-              const p = players[c];
-              const slot = slots[c];
-              if (!slot || !slot.connected) return null;
-
-              const pos = p ? p.position : 0;
-              const isTurn = activeColor === c;
-
-              return (
-                <div
-                  key={`progress_${c}`}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 12px',
-                    borderRadius: '10px',
-                    background: isTurn ? 'rgba(99, 102, 241, 0.25)' : 'rgba(30, 41, 59, 0.5)',
-                    border: `1px solid ${isTurn ? PLAYER_COLORS[c].hex : 'rgba(255,255,255,0.08)'}`
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: PLAYER_COLORS[c].hex }} />
-                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#FFF' }}>
-                      {slot.name}
-                    </span>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {onOpenThrowMenu && c !== myColor && (
-                      <button
-                        onClick={() => onOpenThrowMenu(c, slot.name)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85rem' }}
-                        title={`Throw item at ${slot.name}`}
-                      >
-                        🎯
-                      </button>
-                    )}
-                    <span style={{ fontSize: '0.85rem', fontWeight: 900, color: pos > 0 ? '#4ADE80' : '#94A3B8' }}>
-                      {pos === 0 ? 'Dock (0)' : `Tile ${pos}`}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Center / Bottom Interactive Section: Dice & Action */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', width: '100%' }}>
-          
-          {/* Dice Roller Component */}
-          <div style={{ margin: '6px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+          {/* Integrated Dice Roller */}
+          <div style={{ margin: '14px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
             <DiceRoller
               currentDice={currentDice}
               dicePool={[]}
@@ -938,8 +738,10 @@ export default function BoardSnakesLadders({
               hideBalance={true}
             />
           </div>
+        </div>
 
-          {/* Action Button: ROLL DICE */}
+        {/* Action Controls */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%' }}>
           {isMyTurn && canRoll && !gameOver && (
             <button
               onClick={() => {
@@ -951,7 +753,7 @@ export default function BoardSnakesLadders({
                 width: '100%',
                 justifyContent: 'center',
                 padding: '14px',
-                fontSize: '1.1rem',
+                fontSize: '1.05rem',
                 fontWeight: 900,
                 background: 'linear-gradient(135deg, #10B981, #059669)',
                 border: 'none',
@@ -963,7 +765,6 @@ export default function BoardSnakesLadders({
             </button>
           )}
 
-          {/* Action Button / Move Prompt */}
           {isMyTurn && !canRoll && validMoves.length > 0 && !gameOver && (
             <button
               onClick={() => {
@@ -975,7 +776,7 @@ export default function BoardSnakesLadders({
                 width: '100%',
                 justifyContent: 'center',
                 padding: '14px',
-                fontSize: '1.1rem',
+                fontSize: '1.05rem',
                 fontWeight: 900,
                 background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                 border: 'none',
@@ -1005,7 +806,7 @@ export default function BoardSnakesLadders({
             </div>
           )}
 
-          {/* Emote & Chat Triggers */}
+          {/* Reactions & Chat Triggers */}
           <div style={{ display: 'flex', gap: '10px', width: '100%', marginTop: '6px' }}>
             {onOpenReactionPicker && (
               <button
@@ -1026,9 +827,263 @@ export default function BoardSnakesLadders({
               </button>
             )}
           </div>
+        </div>
+      </div>
 
+      {/* Center 10x10 Board Container */}
+      <div className="snakes-ladders-board">
+        <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '12px', overflow: 'hidden' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(10, 1fr)',
+              gridTemplateRows: 'repeat(10, 1fr)',
+              width: '100%',
+              height: '100%',
+              gap: '2px',
+              boxSizing: 'border-box'
+            }}
+          >
+            {cells}
+          </div>
+
+          {renderSVGOverlay()}
+          {renderPlayerTokens()}
+        </div>
+      </div>
+
+      {/* DESKTOP-ONLY RIGHT PANEL: Opponents & Game Overview */}
+      <div className="glass-panel snakes-ladders-panel desktop-only-sl">
+        <div>
+          <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 900, background: 'linear-gradient(135deg, #FFF, #4ADE80)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>
+              🐍 OPPONENTS
+            </h2>
+            <span style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 600 }}>100 Tiles Goal • Free For All</span>
+          </div>
+
+          {/* Active Turn Banner */}
+          <div
+            style={{
+              background: 'rgba(30, 41, 59, 0.8)',
+              padding: '10px 14px',
+              borderRadius: '14px',
+              border: `2px solid ${PLAYER_COLORS[activeColor]?.hex || '#6366F1'}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '16px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '50%',
+                  background: PLAYER_COLORS[activeColor]?.hex || '#FFF',
+                  boxShadow: `0 0 10px ${PLAYER_COLORS[activeColor]?.hex}`
+                }}
+              />
+              <div>
+                <div style={{ fontSize: '0.68rem', color: '#94A3B8', fontWeight: 700 }}>ACTIVE TURN</div>
+                <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#FFF' }}>
+                  {slots[activeColor]?.name || activeColor.toUpperCase()}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.68rem', color: '#94A3B8', fontWeight: 700 }}>TIMER</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 900, color: timeLeft <= 5 ? '#F87171' : '#FBBF24' }}>
+                ⏱️ {timeLeft}s
+              </div>
+            </div>
+          </div>
+
+          {/* Opponents List with Throwables */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Opponent Players</span>
+            {opponentColors.map(c => {
+              const p = players[c];
+              const slot = slots[c];
+              if (!slot || !slot.connected) return null;
+
+              const pos = p ? p.position : 0;
+              const isTurn = activeColor === c;
+
+              return (
+                <div
+                  key={`desktop_opp_${c}`}
+                  data-player-color={c}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    borderRadius: '10px',
+                    background: isTurn ? 'rgba(99, 102, 241, 0.25)' : 'rgba(30, 41, 59, 0.5)',
+                    border: `1px solid ${isTurn ? PLAYER_COLORS[c].hex : 'rgba(255,255,255,0.08)'}`
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: PLAYER_COLORS[c].hex }} />
+                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#FFF' }}>
+                      {slot.name}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {onOpenThrowMenu && (
+                      <button
+                        onClick={() => onOpenThrowMenu(c, slot.name)}
+                        style={{ background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', padding: '2px 6px' }}
+                        title={`Throw item at ${slot.name}`}
+                      >
+                        🎯 Throw
+                      </button>
+                    )}
+                    <span style={{ fontSize: '0.85rem', fontWeight: 900, color: pos > 0 ? '#4ADE80' : '#94A3B8' }}>
+                      {pos === 0 ? 'Dock' : `#${pos}`}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* MOBILE BOTTOM DOCK: Unified Player Card (Position + Interactive 3D Dice + Reactions) */}
+      <div
+        className="mobile-only-sl mobile-bottom-dock"
+        data-player-color={myColor}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: isMyTurn ? 'rgba(30, 41, 59, 0.95)' : 'rgba(15, 23, 42, 0.85)',
+          border: `2px solid ${isMyTurn ? (PLAYER_COLORS[myColor]?.hex || '#6366F1') : 'rgba(255, 255, 255, 0.15)'}`,
+          borderRadius: '16px',
+          padding: '6px 12px',
+          boxSizing: 'border-box',
+          backdropFilter: 'blur(14px)',
+          flexShrink: 0,
+          gap: '8px',
+          boxShadow: isMyTurn ? `0 0 20px ${PLAYER_COLORS[myColor]?.glow || 'rgba(99, 102, 241, 0.4)'}` : 'none'
+        }}
+      >
+        {/* Left: Player Profile & Tile Position */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div
+            style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              background: PLAYER_COLORS[myColor]?.hex || '#6366F1',
+              boxShadow: `0 0 10px ${PLAYER_COLORS[myColor]?.hex}`
+            }}
+          />
+          <div>
+            <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#FFF', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              {slots[myColor]?.name || myColor.toUpperCase()}
+              <span style={{ fontSize: '0.58rem', background: '#6366F1', padding: '1px 5px', borderRadius: '6px' }}>YOU</span>
+            </div>
+            <div style={{ fontSize: '0.72rem', fontWeight: 800, color: myPosition > 0 ? '#4ADE80' : '#94A3B8' }}>
+              {myPosition === 0 ? 'Dock (0)' : `Tile #${myPosition}`}
+            </div>
+          </div>
         </div>
 
+        {/* Center: Interactive 3D Dice Roller (Click Dice directly to Roll or Step) */}
+        <div
+          onClick={() => {
+            if (isMyTurn && !gameOver) {
+              if (canRoll) {
+                sounds.playDiceRoll();
+                onRollDice(0);
+              } else if (validMoves.length > 0) {
+                sounds.playClick();
+                onMoveToken(0);
+              }
+            }
+          }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: (isMyTurn && !gameOver) ? 'pointer' : 'default',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            background: isMyTurn ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+            border: isMyTurn ? '1px solid rgba(255, 255, 255, 0.2)' : 'none'
+          }}
+        >
+          <DiceRoller
+            currentDice={currentDice}
+            dicePool={[]}
+            canRoll={canRoll}
+            isMyTurn={isMyTurn}
+            activeColor={activeColor}
+            onRollDice={onRollDice}
+            diceCount={1}
+            diceSize={48}
+            hideBalance={true}
+            hideHelperText={true}
+          />
+          {isMyTurn && !gameOver && (
+            <span style={{
+              fontSize: '0.62rem',
+              fontWeight: 900,
+              color: canRoll ? '#2ED573' : (validMoves.length > 0 ? '#818CF8' : '#F87171'),
+              marginTop: '2px',
+              animation: canRoll ? 'pulse 1s infinite' : 'none'
+            }}>
+              {canRoll ? '⚡ TAP DICE!' : (validMoves.length > 0 ? '👉 STEP' : '🚫 EXCEEDS')}
+            </span>
+          )}
+        </div>
+
+        {/* Right: Quick Reaction Picker & Chat Triggers */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {onOpenReactionPicker && (
+            <button
+              onClick={onOpenReactionPicker}
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                padding: '6px 8px',
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                color: '#FFF'
+              }}
+              title="Reactions"
+            >
+              😍
+            </button>
+          )}
+          {onToggleMobileChat && (
+            <button
+              onClick={onToggleMobileChat}
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                padding: '6px 8px',
+                cursor: 'pointer',
+                color: '#FFF',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+              title="Chat"
+            >
+              <MessageSquare size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
     </div>
