@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Copy, Check, Play } from 'lucide-react';
 import { sounds } from '../utils/audio';
+import VoiceChatControls from './VoiceChatControls';
 
 const COLOR_HEX = {
   red: '#FF4757',
@@ -11,7 +12,7 @@ const COLOR_HEX = {
   purple: '#A55EEA'
 };
 
-export default function GameLobby({ roomCode, slots, settings, isHost, myColor, onStartGame, onLeaveRoom, onOpenThrowMenu }) {
+export default function GameLobby({ roomCode, slots, settings, isHost, myColor, onStartGame, onLeaveRoom, onOpenThrowMenu, voiceState }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyCode = () => {
@@ -46,7 +47,7 @@ export default function GameLobby({ roomCode, slots, settings, isHost, myColor, 
         </div>
 
         {/* Room Info */}
-        <div style={{ display: 'flex', justifyContent: 'space-around', background: 'rgba(15, 23, 42, 0.5)', padding: '12px', borderRadius: '12px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-around', background: 'rgba(15, 23, 42, 0.5)', padding: '12px', borderRadius: '12px', marginBottom: '16px' }}>
           <div style={{ textAlign: 'center' }}>
             <span style={{ fontSize: '0.75rem', color: '#94A3B8', textTransform: 'uppercase' }}>Game</span>
             <div style={{ fontWeight: 700, color: '#FFF' }}>
@@ -64,6 +65,13 @@ export default function GameLobby({ roomCode, slots, settings, isHost, myColor, 
             <div style={{ fontWeight: 700, color: '#FFF' }}>{connectedCount} / {maxPlayers}</div>
           </div>
         </div>
+
+        {/* Pre-Game Voice Chat Controls */}
+        {voiceState && (
+          <div style={{ marginBottom: '20px' }}>
+            <VoiceChatControls voiceState={voiceState} />
+          </div>
+        )}
 
         {/* Player Slots */}
         <div style={{ marginBottom: '28px' }}>

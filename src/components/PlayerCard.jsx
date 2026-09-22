@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, User, Crown, ArrowRight } from 'lucide-react';
+import { Shield, User, Crown, ArrowRight, Mic, MicOff } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
 const COLOR_HEX = {
@@ -11,7 +11,7 @@ const COLOR_HEX = {
   purple: '#A55EEA'
 };
 
-export default function PlayerCard({ color, player, isActive, isMe, teamName, finishStep, timeLeft, turnTimer, onOpenThrowMenu, onOpenReactionPicker, onSendReaction }) {
+export default function PlayerCard({ color, player, isActive, isMe, teamName, finishStep, timeLeft, turnTimer, onOpenThrowMenu, onOpenReactionPicker, onSendReaction, voiceState }) {
   if (!player) {
     return (
       <div data-player-color={color} className="glass-panel" style={{ padding: '12px 16px', opacity: 0.4, display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -25,6 +25,10 @@ export default function PlayerCard({ color, player, isActive, isMe, teamName, fi
   const finishedCount = player.tokens ? player.tokens.filter(s => s === finishStep).length : 0;
   const mainHex = COLOR_HEX[color] || '#6366F1';
 
+  // Voice state info
+  const voicePeerInfo = voiceState?.voicePeers?.[color];
+  const isSpeaking = voiceState?.speakingPlayers?.[color];
+
   return (
     <div 
       data-player-color={color}
@@ -37,7 +41,8 @@ export default function PlayerCard({ color, player, isActive, isMe, teamName, fi
         alignItems: 'center',
         justifyContent: 'space-between',
         transition: 'all 0.3s ease',
-        position: 'relative'
+        position: 'relative',
+        boxShadow: isSpeaking ? '0 0 16px #10B981, inset 0 0 8px rgba(16, 185, 129, 0.3)' : undefined
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -57,7 +62,8 @@ export default function PlayerCard({ color, player, isActive, isMe, teamName, fi
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          boxShadow: isActive ? `0 0 16px ${mainHex}` : 'none'
+          boxShadow: isSpeaking ? '0 0 16px #10B981' : (isActive ? `0 0 16px ${mainHex}` : 'none'),
+          transition: 'all 0.2s ease'
         }}>
           <User size={20} color="#FFF" />
         </div>
@@ -68,6 +74,30 @@ export default function PlayerCard({ color, player, isActive, isMe, teamName, fi
               {player.name} {isMe && <span style={{ fontSize: '0.75rem', color: '#818CF8' }}>(You)</span>}
             </span>
             {finishedCount === 4 && <Crown size={16} color="#FFA502" />}
+
+            {/* Voice Status Badge */}
+            {voicePeerInfo && (
+              <div 
+                title={voicePeerInfo.isMuted ? 'Muted' : (isSpeaking ? 'Speaking' : 'Voice Connected')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '2px 4px',
+                  borderRadius: '4px',
+                  background: voicePeerInfo.isMuted ? 'rgba(239, 68, 68, 0.2)' : (isSpeaking ? 'rgba(16, 185, 129, 0.3)' : 'rgba(148, 163, 184, 0.2)')
+                }}
+              >
+                {voicePeerInfo.isMuted ? (
+                  <MicOff size={14} color="#EF4444" />
+                ) : (
+                  <Mic 
+                    size={14} 
+                    color={isSpeaking ? '#10B981' : '#38BDF8'} 
+                    style={{ animation: isSpeaking ? 'pulse 0.8s infinite' : 'none' }}
+                  />
+                )}
+              </div>
+            )}
             
             {/* React Option Button */}
             {(onOpenReactionPicker || onSendReaction) && (

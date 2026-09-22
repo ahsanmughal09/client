@@ -19,6 +19,7 @@ import ConfirmModal from './components/ConfirmModal';
 import confetti from 'canvas-confetti';
 import { MessageSquare, X, Bot } from 'lucide-react';
 import { getSmartAutoMove } from './utils/smartAutoPlayer';
+import { useVoiceChat } from './hooks/useVoiceChat';
 
 const COLOR_HEX_CHIP = {
   red: '#FF4757',
@@ -59,6 +60,9 @@ export default function App() {
   const [view, setView] = useState('home'); // 'home', 'lobby', 'game'
   const [roomCode, setRoomCode] = useState('');
   const [myColor, setMyColor] = useState('');
+  
+  // Voice Chat state management
+  const voiceState = useVoiceChat(socket, roomCode, myColor);
   const [slots, setSlots] = useState({});
   const [settings, setSettings] = useState({ mode: '4P', teamMode: 'solo', turnTimer: 30 });
   const [gameState, setGameState] = useState(null);
@@ -727,6 +731,7 @@ export default function App() {
           onOpenThrowMenu={handleOpenThrowMenu}
           onOpenReactionPicker={() => setIsReactionPickerOpen(true)}
           onSendReaction={handleSendReaction}
+          voiceState={voiceState}
         />
       )}
 
@@ -943,6 +948,7 @@ export default function App() {
                   onOpenReactionPicker={() => setIsReactionPickerOpen(true)}
                   onSendReaction={handleSendReaction}
                   onSubmitAppeal={handleSubmitAppeal}
+                  voiceState={voiceState}
                 />
               );
             };
@@ -981,6 +987,7 @@ export default function App() {
                       socket={socket}
                       chatMessages={chatMessages}
                       myColor={myColor}
+                      voiceState={voiceState}
                     />
                   </div>
 
@@ -1091,6 +1098,7 @@ export default function App() {
                     socket={socket}
                     chatMessages={chatMessages}
                     myColor={myColor}
+                    voiceState={voiceState}
                   />
                 </div>
               </div>

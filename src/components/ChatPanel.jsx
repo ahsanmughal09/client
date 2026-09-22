@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, MessageSquare } from 'lucide-react';
 import { sounds } from '../utils/audio';
+import VoiceChatControls from './VoiceChatControls';
 
-export default function ChatPanel({ roomCode, socket, chatMessages }) {
+export default function ChatPanel({ roomCode, socket, chatMessages, voiceState }) {
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -25,6 +26,9 @@ export default function ChatPanel({ roomCode, socket, chatMessages }) {
         <MessageSquare size={18} color="#818CF8" />
         <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#FFF' }}>Room Chat</span>
       </div>
+
+      {/* Voice Controls Bar */}
+      {voiceState && <VoiceChatControls voiceState={voiceState} />}
 
       {/* Messages List */}
       <div style={{ flex: 1, padding: '12px', overflowY: 'auto', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch', display: 'flex', flexDirection: 'column', gap: '8px' }}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Mic, MicOff } from 'lucide-react';
 import { sounds } from '../utils/audio';
 
 const COLOR_HEX = {
@@ -104,7 +105,8 @@ export default function MiniCornerPod({
   onOpenThrowMenu,
   onOpenReactionPicker,
   onSendReaction,
-  onSubmitAppeal
+  onSubmitAppeal,
+  voiceState
 }) {
   const [rolling, setRolling] = useState(false);
   const [showingSixDelay, setShowingSixDelay] = useState(false);
@@ -114,6 +116,9 @@ export default function MiniCornerPod({
   const playerName = player ? player.name : `Empty (${color.toUpperCase()})`;
   const isConnected = player && player.connected;
   const canThrowAtPlayer = isConnected && !isMe;
+
+  const voicePeerInfo = voiceState?.voicePeers?.[color];
+  const isSpeaking = voiceState?.speakingPlayers?.[color];
 
   const currentDice = gameState?.currentDice;
   const dicePool = gameState?.dicePool || [];
@@ -244,6 +249,22 @@ export default function MiniCornerPod({
             }}>
               YOU
             </span>
+          )}
+          {voicePeerInfo && (
+            <div 
+              title={voicePeerInfo.isMuted ? 'Muted' : (isSpeaking ? 'Speaking' : 'Voice Connected')}
+              style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}
+            >
+              {voicePeerInfo.isMuted ? (
+                <MicOff size={13} color="#EF4444" />
+              ) : (
+                <Mic 
+                  size={13} 
+                  color={isSpeaking ? '#10B981' : '#38BDF8'} 
+                  style={{ animation: isSpeaking ? 'pulse 0.8s infinite' : 'none' }}
+                />
+              )}
+            </div>
           )}
           {canThrowAtPlayer && onOpenThrowMenu && (
             <button
