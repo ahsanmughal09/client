@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { sounds } from '../utils/audio';
 
-const COLOR_HEX = {
-  red: '#FF4757',
-  green: '#2ED573',
-  yellow: '#FFA502',
-  blue: '#1E90FF',
-  orange: '#FF6B81',
-  purple: '#A55EEA'
-};
-
 export default function ReactionOverlay({ activeReactions = [] }) {
   const [displayedReactions, setDisplayedReactions] = useState([]);
   const processedIdsRef = useRef(new Set());
@@ -60,38 +51,20 @@ export default function ReactionOverlay({ activeReactions = [] }) {
       const posX = podCenter ? podCenter.x : defaultPos.x;
       const posY = podCenter ? podCenter.y : defaultPos.y;
 
-      // Play audio synthesizer sound effect for this reaction safely without blocking UI
+      // Play audio sound effect safely
       try {
         sounds.playReaction(r.reactionId);
       } catch (err) {
         console.warn('Audio playback error ignored:', err);
       }
 
-      // Generate 6 particle offsets around origin with precomputed mid values for WebKit compatibility
-      const particles = Array.from({ length: 6 }).map((_, idx) => {
-        const dx = (Math.random() - 0.5) * 140;
-        const rot = (Math.random() - 0.5) * 60;
-        return {
-          id: `${r.id}_p_${idx}`,
-          dx,
-          dxMid: dx * 0.7,
-          rot,
-          rotMid: rot * 0.5,
-          delay: Math.random() * 0.15,
-          scale: 0.85 + Math.random() * 0.6
-        };
-      });
-
       const newReactionItem = {
         id: r.id,
         fromColor: colorKey,
-        senderName: r.senderName,
         reactionId: r.reactionId,
         emoji: r.emoji,
-        label: r.label,
         x: posX,
-        y: posY,
-        particles
+        y: posY
       };
 
       setDisplayedReactions(prev => [...prev, newReactionItem]);
@@ -111,67 +84,31 @@ export default function ReactionOverlay({ activeReactions = [] }) {
       zIndex: 999999,
       overflow: 'visible'
     }}>
-      {displayedReactions.map((item) => {
-        const mainColorHex = COLOR_HEX[item.fromColor] || '#818CF8';
-        return (
-          <React.Fragment key={item.id}>
-            {/* Main Floating Reaction Bubble above player pod */}
-            <div
-              className="reaction-bubble-popup"
-              style={{
-                position: 'absolute',
-                left: `${item.x}px`,
-                top: `${item.y - 45}px`,
-                background: `linear-gradient(135deg, ${mainColorHex}E6, #0F172A)`,
-                border: `2px solid ${mainColorHex}`,
-                borderRadius: '20px',
-                padding: '6px 14px',
-                boxShadow: `0 10px 25px ${mainColorHex}80, 0 0 20px rgba(0,0,0,0.6)`,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                color: '#FFF',
-                zIndex: 99999
-              }}
-            >
-              <span style={{ fontSize: '1.8rem', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))' }}>
-                {item.emoji}
-              </span>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#FFF', lineHeight: 1.1 }}>
-                  {item.senderName}
-                </span>
-                <span style={{ fontSize: '0.65rem', color: '#CBD5E1', fontWeight: 700 }}>
-                  {item.label}
-                </span>
-              </div>
-            </div>
-
-            {/* Particle Burst Emojis floating upward */}
-            {item.particles.map((p) => (
-              <div
-                key={p.id}
-                className="reaction-particle"
-                style={{
-                  position: 'absolute',
-                  left: `${item.x}px`,
-                  top: `${item.y - 30}px`,
-                  fontSize: `${1.6 * p.scale}rem`,
-                  animationDelay: `${p.delay}s`,
-                  '--particle-dx': `${p.dx}px`,
-                  '--particle-dx-mid': `${p.dxMid}px`,
-                  '--particle-rot': `${p.rot}deg`,
-                  '--particle-rot-mid': `${p.rotMid}deg`,
-                  zIndex: 99999,
-                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))'
-                }}
-              >
-                {item.emoji}
-              </div>
-            ))}
-          </React.Fragment>
-        );
-      })}
+      {displayedReactions.map((item) => (
+        <div
+          key={item.id}
+          className="cute-single-reaction-popout"
+          style={{
+            position: 'absolute',
+            left: `${item.x}px`,
+            top: `${item.y - 30}px`,
+            transform: 'translate(-50%, -50%)',
+            pointerEvents: 'none',
+            zIndex: 999999
+          }}
+        >
+          <span
+            className={`cute-emoji-sprite cute-anim-${item.reactionId}`}
+            style={{
+              fontSize: '4.8rem',
+              display: 'inline-block',
+              filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))'
+            }}
+          >
+            {item.emoji}
+          </span>
+        </div>
+      ))}
     </div>
   );
 }

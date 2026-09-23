@@ -886,56 +886,178 @@ circle.token-body, circle.token-moveable-ring, circle.token-specular {
 }
 
 /* ==========================================================================
-   Real-Time Player Emoji Reactions Animations & Dock Styling
+   Single Cute Animated Emoji Reaction System
    ========================================================================== */
 
-@keyframes reactionPopBubble {
+@keyframes cutePopoutEntranceExit {
   0% {
     opacity: 0;
-    transform: translate(-50%, -100%) scale(0.3) translateY(20px);
+    transform: translate(-50%, -50%) scale(0) translateY(40px);
+    filter: blur(6px);
   }
-  30% {
+  18% {
     opacity: 1;
-    transform: translate(-50%, -100%) scale(1.15) translateY(-5px);
+    transform: translate(-50%, -50%) scale(1.35) translateY(-10px);
+    filter: blur(0px);
   }
-  50% {
+  28% {
     opacity: 1;
-    transform: translate(-50%, -100%) scale(1) translateY(0);
+    transform: translate(-50%, -50%) scale(0.92) translateY(0);
   }
-  80% {
+  35% {
     opacity: 1;
-    transform: translate(-50%, -100%) scale(1) translateY(-10px);
+    transform: translate(-50%, -50%) scale(1.08) translateY(-4px);
+  }
+  42% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) translateY(0);
+  }
+  82% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) translateY(-6px);
+    filter: blur(0px);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -100%) scale(0.8) translateY(-30px);
+    transform: translate(-50%, -50%) scale(0.2) translateY(-40px);
+    filter: blur(4px);
   }
 }
 
-@keyframes floatEmojiParticle {
-  0% {
-    opacity: 1;
-    transform: translate(0, 0) scale(0.6) rotate(0deg);
-  }
-  50% {
-    opacity: 0.9;
-    transform: translate(var(--particle-dx-mid, 0px), -70px) scale(1.3) rotate(var(--particle-rot-mid, 0deg));
-  }
-  100% {
-    opacity: 0;
-    transform: translate(var(--particle-dx, 0px), -160px) scale(1.6) rotate(var(--particle-rot, 0deg));
-  }
-}
-
-.reaction-bubble-popup {
-  animation: reactionPopBubble 2.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  will-change: transform, opacity;
-}
-
-.reaction-particle {
-  animation: floatEmojiParticle 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  will-change: transform, opacity;
+.cute-single-reaction-popout {
+  animation: cutePopoutEntranceExit 2.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  will-change: transform, opacity, filter;
   pointer-events: none;
+}
+
+.cute-emoji-sprite {
+  display: inline-block;
+  transform-origin: center center;
+  will-change: transform, filter;
+  user-select: none;
+}
+
+/* 1. LAUGH (😂): Super bouncy hysterics with rocking tilt */
+@keyframes cuteLaugh {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  15% { transform: translateY(-18px) rotate(-16deg) scale(1.28); }
+  30% { transform: translateY(0) rotate(16deg) scale(0.95); }
+  45% { transform: translateY(-14px) rotate(-12deg) scale(1.22); }
+  60% { transform: translateY(0) rotate(12deg) scale(0.98); }
+  75% { transform: translateY(-8px) rotate(-8deg) scale(1.12); }
+}
+.cute-anim-laugh {
+  animation: cuteLaugh 0.7s ease-in-out infinite;
+}
+
+/* 2. HEART EYES (😍): Heartbeat pumping pulse with glowing heart aura */
+@keyframes cuteHeartEyes {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 6px #FF4757); }
+  20% { transform: scale(1.42) rotate(-8deg); filter: drop-shadow(0 0 22px #FF4757); }
+  40% { transform: scale(1.08) rotate(4deg); filter: drop-shadow(0 0 10px #FF4757); }
+  60% { transform: scale(1.36) rotate(-6deg); filter: drop-shadow(0 0 18px #FF4757); }
+  80% { transform: scale(1.04) rotate(2deg); filter: drop-shadow(0 0 8px #FF4757); }
+}
+.cute-anim-heart_eyes {
+  animation: cuteHeartEyes 0.75s ease-in-out infinite;
+}
+
+/* 3. TONGUE OUT (😜): Playful pendulum sway & cheeky tilt */
+@keyframes cuteTongue {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-30deg) scale(1.3) translateX(-6px); }
+  50% { transform: rotate(0deg) scale(0.95); }
+  75% { transform: rotate(30deg) scale(1.3) translateX(6px); }
+}
+.cute-anim-tongue {
+  animation: cuteTongue 0.65s ease-in-out infinite;
+}
+
+/* 4. ANGRY (😡): Violent rage jitter & red flame pulse */
+@keyframes cuteAngry {
+  0%, 100% { transform: translate(0, 0) scale(1); filter: drop-shadow(0 0 6px #FF0000); }
+  10% { transform: translate(-6px, 3px) scale(1.32) rotate(-8deg); }
+  20% { transform: translate(6px, -3px) scale(1.38) rotate(8deg); }
+  30% { transform: translate(-5px, -4px) scale(1.32) rotate(-6deg); }
+  40% { transform: translate(5px, 4px) scale(1.38) rotate(6deg); }
+  50% { transform: translate(-4px, 2px) scale(1.25) rotate(-4deg); }
+  60% { transform: translate(4px, -2px) scale(1.3) rotate(4deg); }
+  70% { transform: translate(-3px, -3px) scale(1.22); }
+  80% { transform: translate(3px, 3px) scale(1.28); }
+}
+.cute-anim-angry {
+  animation: cuteAngry 0.38s ease-in-out infinite;
+}
+
+/* 5. CRY (😭): Sobbing wail tremor & teary drooping */
+@keyframes cuteCry {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  20% { transform: translateY(8px) scale(1.22) rotate(-6deg); }
+  40% { transform: translateY(2px) scale(1.04) rotate(6deg); }
+  60% { transform: translateY(10px) scale(1.25) rotate(-4deg); }
+  80% { transform: translateY(4px) scale(1.08) rotate(4deg); }
+}
+.cute-anim-cry {
+  animation: cuteCry 0.7s ease-in-out infinite;
+}
+
+/* 6. GLASSES (😎): Cool 360 spin & swagger flex */
+@keyframes cuteGlasses {
+  0% { transform: scale(0.4) rotate(-360deg); }
+  25% { transform: scale(1.4) rotate(18deg); }
+  50% { transform: scale(1.05) rotate(-12deg); }
+  75% { transform: scale(1.3) rotate(10deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.cute-anim-glasses {
+  animation: cuteGlasses 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite alternate;
+}
+
+/* 7. FRIGHTENED (😱): Shockwave trembled shivering */
+@keyframes cuteFrightened {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  15% { transform: scale(1.45) translateY(-12px) rotate(-10deg); }
+  30% { transform: scale(1.15) translateY(3px) rotate(10deg); }
+  45% { transform: scale(1.35) translateY(-8px) rotate(-8deg); }
+  60% { transform: scale(1.1) translateY(2px) rotate(8deg); }
+  75% { transform: scale(1.25) translateY(-4px) rotate(-5deg); }
+}
+.cute-anim-frightened {
+  animation: cuteFrightened 0.55s ease-in-out infinite;
+}
+
+/* 8. CONFUSED (😕): Quizzical head tilt back and forth */
+@keyframes cuteConfused {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-40deg) scale(1.28); }
+  50% { transform: rotate(0deg) scale(1.05); }
+  75% { transform: rotate(40deg) scale(1.28); }
+}
+.cute-anim-confused {
+  animation: cuteConfused 0.85s ease-in-out infinite;
+}
+
+/* 9. NERVOUS (😬): Rapid high-frequency horizontal jitter */
+@keyframes cuteNervous {
+  0%, 100% { transform: translateX(0) scale(1); }
+  15% { transform: translateX(-8px) scale(1.2); }
+  30% { transform: translateX(8px) scale(1.25); }
+  45% { transform: translateX(-6px) scale(1.18); }
+  60% { transform: translateX(6px) scale(1.22); }
+  75% { transform: translateX(-4px) scale(1.12); }
+}
+.cute-anim-nervous {
+  animation: cuteNervous 0.3s ease-in-out infinite;
+}
+
+/* 10. SAD (🥺): Pouting puppy-eyes sway side to side */
+@keyframes cuteSad {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  33% { transform: translateY(6px) rotate(-15deg) scale(1.2); }
+  66% { transform: translateY(6px) rotate(15deg) scale(1.2); }
+}
+.cute-anim-sad {
+  animation: cuteSad 1.0s ease-in-out infinite;
 }
 
 .reaction-dock-btn {
