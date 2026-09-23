@@ -276,21 +276,6 @@ export default function App() {
     });
 
     socket.on('CHAT_MESSAGE', (msg) => {
-      // If msg contains an emote reaction, trigger reaction popout and skip chat box log
-      if (msg && msg.emote && EMOJI_TO_REACTION_MAP[msg.emote]) {
-        const reactInfo = EMOJI_TO_REACTION_MAP[msg.emote];
-        const reactionData = {
-          id: `chat_react_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-          fromColor: msg.color || 'red',
-          senderName: msg.sender || 'Player',
-          reactionId: reactInfo.id,
-          emoji: msg.emote,
-          label: reactInfo.label
-        };
-        setActiveReactions((prev) => [...prev, reactionData]);
-        return;
-      }
-
       if (!msg || (!msg.text && !msg.sender)) return;
 
       setChatMessages((prev) => [...prev, msg]);
@@ -495,25 +480,7 @@ export default function App() {
     const reactInfo = REACTION_EMOJI_MAP[reactionId];
     if (!reactInfo) return;
 
-    // 1. Optimistic Local Trigger for instant visual & audio feedback
-    const localId = `local_react_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-    setActiveReactions((prev) => [
-      ...prev,
-      {
-        id: localId,
-        fromColor: myColor || 'red',
-        senderName: slots[myColor]?.name || (myColor ? myColor.toUpperCase() : 'YOU'),
-        reactionId,
-        emoji: reactInfo.emoji,
-        label: reactInfo.label
-      }
-    ]);
-
-    // 2. Broadcast via SEND_REACTION event
     socket.emit('SEND_REACTION', { roomCode, reactionId });
-
-    // 3. Fallback broadcast via SEND_CHAT event to guarantee delivery across all server builds
-    socket.emit('SEND_CHAT', { roomCode, text: null, emote: reactInfo.emoji });
   };
 
   const handlePlayAgain = () => {
